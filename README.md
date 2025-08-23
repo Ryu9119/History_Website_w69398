@@ -1,7 +1,7 @@
 # 🌟 Thiên Sử Ký - History Website
 
 ## 📋 Project Overview
-**Thiên Sử Ký** is a comprehensive Vietnamese history education website built during my frontend developer internship. This project demonstrates my skills in modern web development, UI/UX design, and project management.
+**Thiên Sử Ký** is a comprehensive Vietnamese history education website built during my frontend developer internship. 
 
 
 ## 🎯 Project Features
