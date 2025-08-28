@@ -9,10 +9,10 @@ const Header = () => {
     { name: 'Trang chủ', href: '/' },
     { name: 'Sản phẩm', href: '/products' },
     { name: 'Blog lịch sử', href: '/blog' },
-    { name: 'Flash Card', href: '/flashcard' },
+    { name: 'Flash Card', href: '/flashcards' },
     { name: 'Chatbot AI', href: '/chatbot', icon: MessageCircle },
-    { name: 'Giỏ hàng', href: '/cart', icon: ShoppingCart },
     { name: 'Đăng nhập', href: '/login', icon: UserIcon },
+    { name: 'Admin', href: '/admin', icon: UserIcon },
   ];
 
   return (
