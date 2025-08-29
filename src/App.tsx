@@ -17,7 +17,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-white text-gray-900">
+        <div className="min-h-screen bg-background text-foreground">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/products" element={<Products />} />

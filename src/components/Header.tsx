@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X, ShoppingCart, User as UserIcon, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { cn } from '../lib/utils';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,7 +17,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="bg-red-900 text-white shadow-lg sticky top-0 z-50">
+    <header className={cn("bg-primary text-primary-foreground shadow-lg sticky top-0 z-50 border-b border-border")}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -24,7 +25,7 @@ const Header = () => {
             <div className="w-10 h-10 flex items-center justify-center">
               <img src="/logo.svg" alt="Thiên Sử Ký Logo" className="w-8 h-8 object-contain" />
             </div>
-            <span className="text-2xl font-bold text-red-100">Thiên Sử Ký</span>
+            <span className={cn("text-2xl font-bold text-primary-foreground/90")}>Thiên Sử Ký</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -33,7 +34,10 @@ const Header = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className="flex items-center space-x-1 hover:text-red-300 transition-colors duration-200 font-medium"
+                className={cn(
+                  "flex items-center space-x-1 transition-colors duration-200 font-medium",
+                  "hover:text-primary-foreground/80 focus:text-primary-foreground/80 focus:outline-none"
+                )}
               >
                 {item.icon && <item.icon size={18} />}
                 <span>{item.name}</span>
@@ -43,8 +47,12 @@ const Header = () => {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden"
+            className={cn(
+              "md:hidden p-2 rounded-md transition-colors",
+              "hover:bg-primary/80 focus:bg-primary/80 focus:outline-none"
+            )}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -52,12 +60,15 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden bg-red-800 py-4">
+          <div className={cn("md:hidden bg-primary/90 py-4 border-t border-border/10")}>
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className="flex items-center space-x-2 px-4 py-2 hover:bg-red-700 transition-colors duration-200"
+                className={cn(
+                  "flex items-center space-x-2 px-4 py-2 transition-colors duration-200 rounded-md mx-2",
+                  "hover:bg-primary/70 focus:bg-primary/70 focus:outline-none"
+                )}
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.icon && <item.icon size={18} />}

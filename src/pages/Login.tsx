@@ -2,7 +2,7 @@ import Header from '../components/Header';
 
 const Login = () => {
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Login (Skeleton)</h1>
