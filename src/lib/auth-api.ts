@@ -44,9 +44,8 @@ export const authApi = {
             }
           };
           
-          // Store token and user
+          // Store token only (no localStorage for Day 6)
           apiUtils.setAuthToken(mockResponse.token);
-          localStorage.setItem('user', JSON.stringify(mockResponse.user));
           
           resolve(mockResponse);
         } else {
@@ -78,19 +77,12 @@ export const authApi = {
   // Logout
   logout(): void {
     apiUtils.removeAuthToken();
-    localStorage.removeItem('user');
+    // No localStorage usage in Day 6
   },
 
-  // Get current user from localStorage
+  // Get current user (no localStorage in Day 6)
   getCurrentUser(): User | null {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        return JSON.parse(userStr) as User;
-      } catch {
-        return null;
-      }
-    }
+    // No localStorage usage in Day 6
     return null;
   },
 
@@ -100,8 +92,7 @@ export const authApi = {
       const response = await api.get<User>('/auth/me');
       
       if (response.data) {
-        // Update stored user info
-        localStorage.setItem('user', JSON.stringify(response.data));
+        // No localStorage usage in Day 6
       }
       
       return response.data!;
@@ -120,9 +111,9 @@ export const authApi = {
   // Check if user is authenticated
   isAuthenticated(): boolean {
     const token = apiUtils.getAuthToken();
-    const user = localStorage.getItem('user');
+    // No localStorage usage in Day 6 - only check token
     
-    return !!(token && user);
+    return !!token;
   },
 
   // Mock functions for Day 6 (not implemented)
