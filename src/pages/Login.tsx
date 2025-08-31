@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { loginSchema, type LoginFormData } from '../lib/auth-schemas';
@@ -10,20 +9,34 @@ import Header from '../components/Header';
 
 const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  });
+    reset,
+  } = useForm<LoginFormData>();
 
   const onSubmit = async (data: LoginFormData) => {
+    // Clear previous errors
+    setErrors({});
+    
+    // Validate with schema.safeParse
+    const validationResult = loginSchema.safeParse(data);
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      validationResult.error.errors.forEach((error) => {
+        const field = error.path[0] as string;
+        fieldErrors[field] = error.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await authApi.login(data);
+      await authApi.login(validationResult.data);
       toast.success('Đăng nhập thành công!');
       navigate('/');
     } catch (error) {
