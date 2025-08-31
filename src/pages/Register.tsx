@@ -68,6 +68,8 @@ const Register = () => {
                 {...register('name')}
                 type="text"
                 id="name"
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? "name-error" : undefined}
                 className={cn(
                   "w-full px-3 py-2 border rounded-md transition-colors",
                   "bg-background text-foreground border-border",
@@ -79,7 +81,9 @@ const Register = () => {
                 disabled={isSubmitting}
               />
               {errors.name && (
-                <p className="mt-1 text-sm text-destructive">{errors.name.message}</p>
+                <p id="name-error" className="mt-1 text-sm text-destructive" role="alert">
+                  {errors.name}
+                </p>
               )}
             </div>
 
@@ -92,6 +96,8 @@ const Register = () => {
                 {...register('email')}
                 type="email"
                 id="email"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
                 className={cn(
                   "w-full px-3 py-2 border rounded-md transition-colors",
                   "bg-background text-foreground border-border",
@@ -103,7 +109,9 @@ const Register = () => {
                 disabled={isSubmitting}
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-destructive">{errors.email.message}</p>
+                <p id="email-error" className="mt-1 text-sm text-destructive" role="alert">
+                  {errors.email}
+                </p>
               )}
             </div>
 
@@ -116,6 +124,8 @@ const Register = () => {
                 {...register('password')}
                 type="password"
                 id="password"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : undefined}
                 className={cn(
                   "w-full px-3 py-2 border rounded-md transition-colors",
                   "bg-background text-foreground border-border",
@@ -127,7 +137,9 @@ const Register = () => {
                 disabled={isSubmitting}
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-destructive">{errors.password.message}</p>
+                <p id="password-error" className="mt-1 text-sm text-destructive" role="alert">
+                  {errors.password}
+                </p>
               )}
             </div>
 
@@ -140,6 +152,8 @@ const Register = () => {
                 {...register('confirmPassword')}
                 type="password"
                 id="confirmPassword"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
                 className={cn(
                   "w-full px-3 py-2 border rounded-md transition-colors",
                   "bg-background text-foreground border-border",
@@ -151,7 +165,9 @@ const Register = () => {
                 disabled={isSubmitting}
               />
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-destructive">{errors.confirmPassword.message}</p>
+                <p id="confirmPassword-error" className="mt-1 text-sm text-destructive" role="alert">
+                  {errors.confirmPassword}
+                </p>
               )}
             </div>
 

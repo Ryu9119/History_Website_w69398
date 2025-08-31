@@ -68,6 +68,8 @@ const Login = () => {
                 {...register('email')}
                 type="email"
                 id="email"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
                 className={cn(
                   "w-full px-3 py-2 border rounded-md transition-colors",
                   "bg-background text-foreground border-border",
@@ -79,7 +81,9 @@ const Login = () => {
                 disabled={isSubmitting}
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-destructive">{errors.email.message}</p>
+                <p id="email-error" className="mt-1 text-sm text-destructive" role="alert">
+                  {errors.email}
+                </p>
               )}
             </div>
 
@@ -92,6 +96,8 @@ const Login = () => {
                 {...register('password')}
                 type="password"
                 id="password"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : undefined}
                 className={cn(
                   "w-full px-3 py-2 border rounded-md transition-colors",
                   "bg-background text-foreground border-border",
@@ -103,7 +109,9 @@ const Login = () => {
                 disabled={isSubmitting}
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-destructive">{errors.password.message}</p>
+                <p id="password-error" className="mt-1 text-sm text-destructive" role="alert">
+                  {errors.password}
+                </p>
               )}
             </div>
 
