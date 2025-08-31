@@ -8,6 +8,7 @@ import Blog from "./pages/Blog";
 import Flashcards from "./pages/Flashcards";
 import Chatbot from "./pages/Chatbot";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/chatbot" element={<Chatbot />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
