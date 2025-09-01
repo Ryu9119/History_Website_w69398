@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../lib/utils';
+import { Button } from '@/components/ui/button';
 
 const Hero = () => {
   return (
@@ -12,19 +13,12 @@ const Hero = () => {
           Học lịch sử một cách thú vị và tương tác thông qua các sản phẩm giáo dục chất lượng cao
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className={cn(
-            "bg-background text-primary px-8 py-3 rounded-lg font-semibold transition-colors",
-            "hover:bg-secondary focus:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring"
-          )}>
+          <Button variant="secondary" size="lg">
             Khám phá ngay
-          </button>
-          <button className={cn(
-            "border-2 border-background text-white px-8 py-3 rounded-lg font-semibold transition-colors",
-            "hover:bg-background hover:text-primary focus:bg-background focus:text-primary",
-            "focus:outline-none focus:ring-2 focus:ring-ring"
-          )}>
+          </Button>
+          <Button variant="ghost" size="lg" className={cn("border-2 border-white text-white hover:bg-accent hover:text-accent-foreground")}> 
             Tìm hiểu thêm
-          </button>
+          </Button>
         </div>
       </div>
     </section>
