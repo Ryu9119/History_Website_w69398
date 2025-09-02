@@ -22,7 +22,7 @@
 
 ## 📞 Contact
 - **Developer**: Long Vu Hai
-- **Internship Period**: July 1st - September 25th, 2024
+- **Internship Period**: July 1st - September 25th
 - **Company**: Staron JSC
 - **Role**: Frontend Developer Intern
 
