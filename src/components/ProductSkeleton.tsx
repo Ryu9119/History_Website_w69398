@@ -50,3 +50,4 @@ const ProductSkeleton: React.FC<ProductSkeletonProps> = ({ className }) => {
 };
 
 export default ProductSkeleton;
+
