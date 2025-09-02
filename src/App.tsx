@@ -4,6 +4,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { Toaster } from "sonner";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 import Blog from "./pages/Blog";
 import Flashcards from "./pages/Flashcards";
 import Chatbot from "./pages/Chatbot";
@@ -22,6 +23,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/chatbot" element={<Chatbot />} />
