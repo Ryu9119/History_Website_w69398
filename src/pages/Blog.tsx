@@ -42,7 +42,7 @@ const Blog = () => {
         )}
 
         {!isLoading && !isError && posts.length === 0 && (
-          <EmptyState type="no-results" className="mt-4" onClearFilters={clearFilters} />
+          <EmptyState type="no-blog-results" className="mt-4" onClearFilters={clearFilters} />
         )}
 
         {!isLoading && !isError && posts.length > 0 && (
