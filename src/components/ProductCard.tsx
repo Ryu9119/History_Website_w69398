@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { type Product } from '../lib/mock-data';
 
@@ -89,18 +90,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
         </div>
 
         {/* Action Button */}
-        <button 
+        <Link 
+          to={`/products/${product.id}`}
           className={cn(
             "w-full mt-3 py-2 px-4 rounded-md font-medium transition-colors",
             "bg-primary text-primary-foreground",
             "hover:bg-primary/90 focus:bg-primary/90",
             "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
             "focus:ring-offset-background",
-            "disabled:opacity-50 disabled:cursor-not-allowed"
+            "inline-block text-center"
           )}
         >
           Xem chi tiết
-        </button>
+        </Link>
       </div>
     </div>
   );
