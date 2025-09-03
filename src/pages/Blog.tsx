@@ -1,34 +1,57 @@
 import Header from '../components/Header';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { BlogPostCard } from '@/components/BlogPostCard';
+import { BlogFilters } from '@/components/BlogFilters';
+import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
+import { useBlogPosts } from '@/hooks/useBlogPosts';
 
 const Blog = () => {
+  const { posts, isLoading, isError, selectedCategory, setSelectedCategory, clearFilters } = useBlogPosts();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Blog</h1>
-        <form className="mb-6 max-w-xl space-y-2" noValidate>
-          <div>
-            <Label htmlFor="blog-search">Tìm bài viết</Label>
-            <div className="mt-1 flex gap-2">
-              <Input 
-                id="blog-search" 
-                name="q" 
-                placeholder="Nhập từ khóa..." 
-                className="w-full"
-                aria-invalid={false}
-                aria-describedby="blog-search-error"
-              />
-              <Button type="submit" variant="primary">Tìm</Button>
-            </div>
-            <p id="blog-search-error" className="text-sm text-destructive hidden">
-              Vui lòng nhập từ khóa tìm kiếm
-            </p>
+
+        <div className="mb-6">
+          <BlogFilters
+            selectedCategory={selectedCategory}
+            onChangeCategory={setSelectedCategory}
+            onClear={clearFilters}
+          />
+        </div>
+
+        {isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-card border border-border rounded-lg overflow-hidden">
+                <div className="w-full h-40 bg-muted animate-pulse" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-muted rounded animate-pulse" />
+                  <div className="h-5 bg-muted rounded animate-pulse" />
+                  <div className="h-4 bg-muted rounded animate-pulse w-2/3" />
+                </div>
+              </div>
+            ))}
           </div>
-        </form>
-        <p className="text-muted-foreground">This is a skeleton page for the blog section.</p>
+        )}
+
+        {!isLoading && isError && (
+          <ErrorState className="mt-4" onRetry={clearFilters} />
+        )}
+
+        {!isLoading && !isError && posts.length === 0 && (
+          <EmptyState type="no-results" className="mt-4" onClearFilters={clearFilters} />
+        )}
+
+        {!isLoading && !isError && posts.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {posts.map((p) => (
+              <BlogPostCard key={p.id} post={p} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
