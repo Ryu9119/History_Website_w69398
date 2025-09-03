@@ -6,6 +6,15 @@ export interface BlogPost {
   category: string;
   coverUrl?: string;
   createdAt: string; // ISO date
+  author: string;
+  readTime: number; // minutes
+  updatedAt: string; // ISO date
+  content: BlogContentBlock[];
+}
+
+export interface BlogContentBlock {
+  type: 'paragraph' | 'heading2' | 'heading3' | 'list';
+  content: string | string[];
 }
 
 export const blogCategories: string[] = [
@@ -25,6 +34,56 @@ export const mockBlogPosts: BlogPost[] = [
     category: "Lịch sử Việt Nam",
     coverUrl: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=1200&auto=format&fit=crop",
     createdAt: "2025-01-05T09:00:00.000Z",
+    author: "Nguyễn Văn A",
+    readTime: 8,
+    updatedAt: "2025-01-05T09:00:00.000Z",
+    content: [
+      {
+        type: "paragraph",
+        content: "Lịch sử Việt Nam trải qua nhiều giai đoạn thăng trầm, mỗi thời kỳ đều để lại những dấu ấn sâu đậm trong tiến trình phát triển của dân tộc. Giai đoạn trung sinh là một trong những thời kỳ quan trọng nhất, đánh dấu sự chuyển biến từ thời kỳ cổ đại sang thời kỳ cận đại."
+      },
+      {
+        type: "heading2",
+        content: "Bối cảnh lịch sử"
+      },
+      {
+        type: "paragraph",
+        content: "Vào thế kỷ X-XV, Việt Nam bước vào giai đoạn độc lập tự chủ sau hơn 1000 năm Bắc thuộc. Đây là thời kỳ các triều đại Lý, Trần, Lê sơ xây dựng và củng cố nền độc lập dân tộc."
+      },
+      {
+        type: "heading3",
+        content: "Triều đại Lý (1009-1225)"
+      },
+      {
+        type: "paragraph",
+        content: "Triều Lý được thành lập bởi Lý Công Uẩn, mở ra thời kỳ thịnh vượng với việc dời đô về Thăng Long. Đây là thời kỳ phát triển mạnh mẽ về văn hóa, giáo dục và quân sự."
+      },
+      {
+        type: "list",
+        content: [
+          "Thành lập Quốc Tử Giám (1070)",
+          "Tổ chức khoa cử (1075)",
+          "Xây dựng Văn Miếu (1070)",
+          "Phát triển Phật giáo"
+        ]
+      },
+      {
+        type: "heading3",
+        content: "Triều đại Trần (1225-1400)"
+      },
+      {
+        type: "paragraph",
+        content: "Triều Trần nổi tiếng với ba lần đánh thắng quân Nguyên Mông, thể hiện tinh thần đoàn kết dân tộc và tài năng quân sự kiệt xuất."
+      },
+      {
+        type: "heading2",
+        content: "Di sản văn hóa"
+      },
+      {
+        type: "paragraph",
+        content: "Giai đoạn trung sinh để lại nhiều di sản văn hóa quý giá, từ kiến trúc đến văn học, nghệ thuật. Những công trình như chùa Một Cột, tháp Bình Sơn vẫn còn tồn tại đến ngày nay."
+      }
+    ]
   },
   {
     id: "2",
@@ -34,6 +93,32 @@ export const mockBlogPosts: BlogPost[] = [
     category: "Thế giới",
     coverUrl: "https://images.unsplash.com/photo-1520975940478-6c1d5bc7b83b?q=80&w=1200&auto=format&fit=crop",
     createdAt: "2025-02-12T12:00:00.000Z",
+    author: "Trần Thị B",
+    readTime: 12,
+    updatedAt: "2025-02-12T12:00:00.000Z",
+    content: [
+      {
+        type: "paragraph",
+        content: "Lịch sử thế giới chứng kiến sự trỗi dậy và suy tàn của nhiều đế chế hùng mạnh. Mỗi đế chế đều để lại những bài học quý giá về quản trị, văn hóa và sự phát triển của nhân loại."
+      },
+      {
+        type: "heading2",
+        content: "Đế chế La Mã"
+      },
+      {
+        type: "paragraph",
+        content: "Đế chế La Mã là một trong những đế chế vĩ đại nhất trong lịch sử, tồn tại từ năm 27 TCN đến năm 476 SCN. La Mã đã xây dựng một hệ thống chính trị, quân sự và văn hóa ảnh hưởng sâu sắc đến châu Âu."
+      },
+      {
+        type: "list",
+        content: [
+          "Hệ thống luật pháp hoàn chỉnh",
+          "Kiến trúc và kỹ thuật xây dựng",
+          "Hệ thống đường sá rộng khắp",
+          "Văn hóa và nghệ thuật phát triển"
+        ]
+      }
+    ]
   },
   {
     id: "3",
@@ -43,6 +128,23 @@ export const mockBlogPosts: BlogPost[] = [
     category: "Nhân vật",
     coverUrl: "https://images.unsplash.com/photo-1600267185393-e158a98703de?q=80&w=1200&auto=format&fit=crop",
     createdAt: "2025-03-08T10:30:00.000Z",
+    author: "Lê Văn C",
+    readTime: 10,
+    updatedAt: "2025-03-08T10:30:00.000Z",
+    content: [
+      {
+        type: "paragraph",
+        content: "Lịch sử Việt Nam ghi nhận nhiều anh hùng dân tộc với những chiến công hiển hách và đức tính cao đẹp. Họ là những tấm gương sáng về lòng yêu nước, trí tuệ và đạo đức."
+      },
+      {
+        type: "heading2",
+        content: "Hai Bà Trưng"
+      },
+      {
+        type: "paragraph",
+        content: "Hai Bà Trưng là những nữ anh hùng đầu tiên trong lịch sử dân tộc, lãnh đạo cuộc khởi nghĩa chống quân Đông Hán vào năm 40-43."
+      }
+    ]
   },
   {
     id: "4",
@@ -52,6 +154,23 @@ export const mockBlogPosts: BlogPost[] = [
     category: "Sự kiện",
     coverUrl: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=1200&auto=format&fit=crop",
     createdAt: "2025-03-21T08:15:00.000Z",
+    author: "Phạm Thị D",
+    readTime: 15,
+    updatedAt: "2025-03-21T08:15:00.000Z",
+    content: [
+      {
+        type: "paragraph",
+        content: "Lịch sử nhân loại được đánh dấu bởi những sự kiện quan trọng, những dấu mốc tạo nên bước ngoặt trong tiến trình phát triển của xã hội loài người."
+      },
+      {
+        type: "heading2",
+        content: "Cách mạng Công nghiệp"
+      },
+      {
+        type: "paragraph",
+        content: "Cách mạng Công nghiệp (1760-1840) đã thay đổi hoàn toàn cách thức sản xuất và tổ chức xã hội, mở ra kỷ nguyên hiện đại."
+      }
+    ]
   },
   {
     id: "5",
@@ -61,6 +180,23 @@ export const mockBlogPosts: BlogPost[] = [
     category: "Thế giới",
     coverUrl: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop",
     createdAt: "2025-04-02T14:45:00.000Z",
+    author: "Hoàng Văn E",
+    readTime: 9,
+    updatedAt: "2025-04-02T14:45:00.000Z",
+    content: [
+      {
+        type: "paragraph",
+        content: "Di sản văn hóa là những giá trị tinh thần và vật chất được truyền từ thế hệ này sang thế hệ khác, thể hiện bản sắc và truyền thống của mỗi dân tộc."
+      },
+      {
+        type: "heading2",
+        content: "Di sản thế giới"
+      },
+      {
+        type: "paragraph",
+        content: "UNESCO đã công nhận nhiều di sản văn hóa và thiên nhiên trên khắp thế giới, góp phần bảo tồn và phát huy giá trị của nhân loại."
+      }
+    ]
   },
 ];
 
