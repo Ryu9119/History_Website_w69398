@@ -4,7 +4,7 @@ import { Search, Package, FileText } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface EmptyStateProps {
-  type: 'no-products' | 'no-results' | 'no-posts' | 'no-blog-results';
+  type: 'no-products' | 'no-results' | 'no-posts' | 'no-blog-results' | 'no-flashcards-results';
   onClearFilters?: () => void;
   className?: string;
 }
@@ -66,6 +66,30 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         <p className="text-muted-foreground max-w-md mb-6">
           Không có bài viết nào phù hợp với bộ lọc của bạn. 
           Hãy thử điều chỉnh các tiêu chí tìm kiếm hoặc xóa bộ lọc để xem tất cả bài viết.
+        </p>
+        {onClearFilters && (
+          <Button onClick={onClearFilters} variant="outline">
+            Xóa bộ lọc
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  if (type === 'no-flashcards-results') {
+    return (
+      <div className={cn(
+        "flex flex-col items-center justify-center py-12 text-center",
+        "bg-card border border-border rounded-lg",
+        className
+      )}>
+        <Search className="w-16 h-16 text-muted-foreground mb-4" />
+        <h3 className="text-lg font-semibold text-card-foreground mb-2">
+          Không tìm thấy bộ thẻ
+        </h3>
+        <p className="text-muted-foreground max-w-md mb-6">
+          Không có bộ thẻ nào phù hợp với bộ lọc của bạn. 
+          Hãy thử điều chỉnh tiêu chí hoặc xóa bộ lọc để xem tất cả.
         </p>
         {onClearFilters && (
           <Button onClick={onClearFilters} variant="outline">
