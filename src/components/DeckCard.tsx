@@ -1,6 +1,19 @@
 import { Link } from 'react-router-dom';
 import { FlashcardDeck } from '@/lib/mock-flashcards';
 
+function difficultyToVi(difficulty: FlashcardDeck['difficulty']): string {
+  switch (difficulty) {
+    case 'Beginner':
+      return 'Cơ bản';
+    case 'Intermediate':
+      return 'Trung cấp';
+    case 'Advanced':
+      return 'Nâng cao';
+    default:
+      return String(difficulty);
+  }
+}
+
 interface DeckCardProps {
   deck: FlashcardDeck;
 }
@@ -26,7 +39,7 @@ export const DeckCard = ({ deck }: DeckCardProps) => {
             {deck.category}
           </span>
           <span className="text-xs px-2 py-0.5 rounded border border-border text-foreground">
-            {deck.difficulty}
+            {difficultyToVi(deck.difficulty)}
           </span>
         </div>
         <h3 className="text-base font-semibold text-card-foreground">{deck.title}</h3>
