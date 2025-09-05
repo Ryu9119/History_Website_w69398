@@ -28,17 +28,18 @@ const RelatedPosts: React.FC<RelatedPostsProps> = ({
             key={post.id} 
             className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200"
           >
-            {post.coverUrl ? (
+            <div className="aspect-[4/3] overflow-hidden bg-muted">
               <img
-                src={post.coverUrl}
+                src={post.coverUrl || '/images/placeholder-cover.svg'}
                 alt={post.title}
-                className="w-full h-40 object-cover"
+                className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
+                width={800}
+                height={600}
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/images/placeholder-cover.svg'; }}
               />
-            ) : (
-              <div className="w-full h-40 bg-muted flex items-center justify-center">
-                <span className="text-muted-foreground text-sm">Không có ảnh</span>
-              </div>
-            )}
+            </div>
             
             <div className="p-4">
               <div className="flex items-center gap-2 mb-2">
