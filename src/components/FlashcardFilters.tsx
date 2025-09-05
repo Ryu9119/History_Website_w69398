@@ -1,5 +1,18 @@
 import { FlashcardDifficulty } from '@/lib/mock-flashcards';
 
+function difficultyToVi(d: FlashcardDifficulty): string {
+  switch (d) {
+    case 'Beginner':
+      return 'Cơ bản';
+    case 'Intermediate':
+      return 'Trung cấp';
+    case 'Advanced':
+      return 'Nâng cao';
+    default:
+      return String(d);
+  }
+}
+
 interface FlashcardFiltersProps {
   categories: string[];
   selectedCategory: string;
@@ -41,8 +54,9 @@ export const FlashcardFilters = ({
           className="w-full bg-card text-foreground border border-border rounded px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Lọc theo độ khó"
         >
-          {['Tất cả', 'Beginner', 'Intermediate', 'Advanced'].map((d) => (
-            <option key={d} value={d}>{d}</option>
+          <option value={'Tất cả'}>{'Tất cả'}</option>
+          {(['Beginner','Intermediate','Advanced'] as FlashcardDifficulty[]).map((d) => (
+            <option key={d} value={d}>{difficultyToVi(d)}</option>
           ))}
         </select>
       </label>
