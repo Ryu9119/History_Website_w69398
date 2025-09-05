@@ -8,6 +8,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import Flashcards from "./pages/Flashcards";
+import FlashcardDetail from "./pages/FlashcardDetail";
 import Chatbot from "./pages/Chatbot";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetail />} />
             <Route path="/flashcards" element={<Flashcards />} />
+            <Route path="/flashcards/:id" element={<FlashcardDetail />} />
             <Route path="/chatbot" element={<Chatbot />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
