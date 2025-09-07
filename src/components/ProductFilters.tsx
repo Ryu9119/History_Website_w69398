@@ -3,8 +3,15 @@ import { cn } from '../lib/utils';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { type ProductFilters } from '../hooks/useProducts';
 import { isFeatureEnabled } from '../lib/feature-flags';
+
+export interface ProductFilters {
+  category: string;
+  priceMin: number;
+  priceMax: number;
+  search: string;
+  categoryId?: number;
+}
 
 interface ProductFiltersProps {
   filters: ProductFilters;
@@ -20,7 +27,22 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   className
 }) => {
   const handleCategoryChange = (category: string) => {
-    onFiltersChange({ category });
+    // Map category name to categoryId
+    const categoryMap: Record<string, number> = {
+      'Sách': 1,
+      'Flashcard': 2,
+      'Bản đồ': 3,
+      'Truyện tranh': 4,
+      'Video': 5,
+      'Audio': 6
+    };
+    
+    if (category === 'Tất cả') {
+      onFiltersChange({ categoryId: undefined });
+    } else {
+      const categoryId = categoryMap[category];
+      onFiltersChange({ categoryId });
+    }
   };
 
   const handlePriceChange = (field: 'priceMin' | 'priceMax', value: string) => {
@@ -34,7 +56,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
   const clearFilters = () => {
     onFiltersChange({
-      category: 'Tất cả',
+      categoryId: undefined,
       priceMin: 0,
       priceMax: 1000000,
       search: ''
