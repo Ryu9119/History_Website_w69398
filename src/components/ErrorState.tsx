@@ -10,7 +10,7 @@ interface ErrorStateProps {
 }
 
 const ErrorState: React.FC<ErrorStateProps> = ({ 
-  message = "Đã xảy ra lỗi khi tải dữ liệu", 
+  message = "Không thể tải danh sách sản phẩm", 
   onRetry, 
   className 
 }) => {

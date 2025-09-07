@@ -26,8 +26,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           Chưa có sản phẩm nào
         </h3>
         <p className="text-muted-foreground max-w-md">
-          Hiện tại chúng tôi chưa có sản phẩm nào trong danh mục này. 
-          Vui lòng quay lại sau hoặc liên hệ với chúng tôi để biết thêm thông tin.
+          Chưa có sản phẩm nào
         </p>
       </div>
     );
