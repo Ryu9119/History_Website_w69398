@@ -117,7 +117,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !isComposing) {
+    if (e.key === 'Enter' && !e.shiftKey && !(e.nativeEvent as any).isComposing && !isComposing) {
       e.preventDefault();
       handleSendMessage();
     }
