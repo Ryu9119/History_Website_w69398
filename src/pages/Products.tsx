@@ -1,41 +1,73 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
 import ProductSkeleton from '../components/ProductSkeleton';
 import ProductFilters from '../components/ProductFilters';
-import ProductSort from '../components/ProductSort';
 import EmptyState from '../components/EmptyState';
 import ErrorState from '../components/ErrorState';
+import Pagination from '../components/ui/pagination';
 import { Button } from '../components/ui/button';
-import { useProducts } from '../hooks/useProducts';
+import { useProductsQuery, useProductCategoriesQuery } from '../hooks/useProductsQuery';
 import { cn } from '../lib/utils';
 import { Filter, X } from 'lucide-react';
 import { isFeatureEnabled } from '../lib/feature-flags';
 
 const Products = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [mockError, setMockError] = useState(false);
-  
-  const {
-    filteredProducts,
-    filters,
-    setFilters,
-    sortBy,
-    setSortBy,
-    isLoading,
-    error,
-    retry,
-    categories,
-    sortOptions
-  } = useProducts();
 
-  const handleClearFilters = () => {
-    setFilters({
-      category: 'Tất cả',
-      priceMin: 0,
-      priceMax: 1000000,
-      search: ''
+  // Get URL params with defaults
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '12', 10);
+  const categoryId = searchParams.get('categoryId') ? parseInt(searchParams.get('categoryId')!, 10) : undefined;
+
+  // React Query hooks
+  const { data: productsData, isLoading, error, refetch } = useProductsQuery({
+    page,
+    limit,
+    categoryId,
+  });
+
+  const { data: categories = ['Tất cả'] } = useProductCategoriesQuery();
+
+  // Update URL params
+  const updateURLParams = (newParams: Record<string, string | number | undefined>) => {
+    const params = new URLSearchParams(searchParams);
+    
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === undefined || value === '') {
+        params.delete(key);
+      } else {
+        params.set(key, value.toString());
+      }
     });
+
+    // Reset to page 1 when filters change (except for page itself)
+    if (newParams.page === undefined && Object.keys(newParams).some(k => k !== 'page')) {
+      params.set('page', '1');
+    }
+
+    setSearchParams(params);
+  };
+
+  // Handle filter changes
+  const handleFiltersChange = (newFilters: Record<string, string | number | undefined>) => {
+    updateURLParams(newFilters);
+  };
+
+
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    updateURLParams({ page: newPage });
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Handle clear filters
+  const handleClearFilters = () => {
+    setSearchParams({});
   };
 
   const toggleMockError = () => {
@@ -57,8 +89,7 @@ const Products = () => {
             )}
           </div>
           <ErrorState 
-            message="Lỗi kết nối mạng. Vui lòng kiểm tra kết nối và thử lại."
-            onRetry={retry}
+            onRetry={() => refetch()}
           />
         </div>
       </div>
@@ -101,41 +132,42 @@ const Products = () => {
               : "block"
           )}>
             <ProductFilters
-              filters={filters}
-              onFiltersChange={setFilters}
+              filters={{
+                category: categoryId ? categories[categoryId] || 'Tất cả' : 'Tất cả',
+                search: '',
+                priceMin: 0,
+                priceMax: 1000000,
+              }}
+              onFiltersChange={handleFiltersChange}
               categories={categories}
             />
           </div>
 
           {/* Main Content */}
           <div className="flex-1">
-            {/* Sort and Results Count */}
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <ProductSort
-                  sortBy={sortBy}
-                  onSortChange={setSortBy}
-                  sortOptions={sortOptions}
-                  className="w-full sm:w-48"
-                />
-              </div>
+            {/* Results Count */}
+            <div className="mb-6 flex items-center justify-end">
               <div className="text-sm text-muted-foreground">
-                {filteredProducts.length} sản phẩm
+                {productsData?.data?.total || 0} sản phẩm
               </div>
             </div>
 
             {/* Content States */}
             {isLoading ? (
               // Loading State
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <ProductSkeleton key={index} />
-                ))}
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+                <p className="text-muted-foreground">Đang tải sản phẩm...</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+                  {Array.from({ length: limit }).map((_, index) => (
+                    <ProductSkeleton key={index} />
+                  ))}
+                </div>
               </div>
             ) : error ? (
               // Error State
-              <ErrorState message={error} onRetry={retry} />
-            ) : filteredProducts.length === 0 ? (
+              <ErrorState onRetry={() => refetch()} />
+            ) : !productsData?.data?.items.length ? (
               // Empty State
               <EmptyState 
                 type="no-results" 
@@ -144,9 +176,22 @@ const Products = () => {
             ) : (
               // Products Grid
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product) => (
+                {productsData.data.items.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {productsData && productsData.data.totalPages > 1 && (
+              <div className="mt-8">
+                <Pagination
+                  currentPage={productsData.data.page}
+                  totalPages={productsData.data.totalPages}
+                  totalItems={productsData.data.total}
+                  itemsPerPage={productsData.data.limit}
+                  onPageChange={handlePageChange}
+                />
               </div>
             )}
           </div>
