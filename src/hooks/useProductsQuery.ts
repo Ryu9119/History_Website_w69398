@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProducts, getProductCategories, type ProductsParams, type ProductsResponse } from '../lib/products-adapter';
+import { getProducts, getProductCategories, getProductById, type ProductsParams, type ProductsResponse } from '../lib/products-adapter';
 
 export interface UseProductsQueryParams extends ProductsParams {
   enabled?: boolean;
@@ -32,5 +32,23 @@ export const useProductCategoriesQuery = () => {
     queryFn: getProductCategories,
     staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 60 * 60 * 1000, // 1 hour
+  });
+};
+
+export const useProductByIdQuery = (id: number | undefined) => {
+  return useQuery<{ product: Awaited<ReturnType<typeof getProductById>> }, Error>({
+    queryKey: ['product', id],
+    queryFn: async () => {
+      if (typeof id !== 'number' || Number.isNaN(id)) throw new Error('invalid-id');
+      const product = await getProductById(id);
+      return { product };
+    },
+    enabled: typeof id === 'number' && !Number.isNaN(id),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (error.message === 'invalid-id') return false;
+      return failureCount < 2;
+    },
   });
 };
