@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useProductDetail } from '../hooks/useProductDetail';
+import { useProductByIdQuery } from '../hooks/useProductsQuery';
 import { cn } from '../lib/utils';
+import { mockProducts } from '../lib/mock-data';
 import { type Product } from '../lib/mock-data';
 import ProductCard from '../components/ProductCard';
 
@@ -13,7 +14,8 @@ const ProductDetail: React.FC = () => {
   const id = Number(params.id);
   const isInvalidId = Number.isNaN(id);
 
-  const { product, related, isLoading, error, retry } = useProductDetail(id);
+  const { data, isLoading, error, refetch } = useProductByIdQuery(Number.isNaN(id) ? undefined : id);
+  const product = data?.product ?? null;
 
   const images = useMemo(() => {
     if (!product) return [] as { src: string; alt: string }[];
@@ -30,6 +32,13 @@ const ProductDetail: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const onSelect = (index: number) => setActiveIndex(index);
+
+  const related = useMemo(() => {
+    if (!product) return [] as Product[];
+    return mockProducts
+      .filter(p => p.category === product.category && p.id !== product.id)
+      .slice(0, 4);
+  }, [product]);
 
   if (isInvalidId) {
     return (
@@ -69,9 +78,9 @@ const ProductDetail: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="bg-card border border-border rounded-md p-6 text-center">
           <h1 className="text-xl font-semibold text-card-foreground">Đã xảy ra lỗi</h1>
-          <p className="text-muted-foreground mt-2">{error}</p>
+          <p className="text-muted-foreground mt-2">Đã xảy ra lỗi khi tải sản phẩm.</p>
           <button
-            onClick={retry}
+            onClick={() => refetch()}
             className="mt-4 px-4 py-2 rounded-md bg-primary text-primary-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Thử lại
@@ -168,7 +177,7 @@ const ProductDetail: React.FC = () => {
         </section>
       </div>
 
-      {/* Related */}
+      {/* Related - same category, max 4 (simple rule, no new endpoints) */}
       {related.length > 0 && (
         <section className="mt-10">
           <h2 className="text-lg font-semibold text-card-foreground mb-4">Sản phẩm liên quan</h2>
