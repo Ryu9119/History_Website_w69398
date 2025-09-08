@@ -9,6 +9,7 @@ import ErrorState from '../components/ErrorState';
 import Pagination from '../components/ui/pagination';
 import { Button } from '../components/ui/button';
 import { useProductsQuery, useProductCategoriesQuery } from '../hooks/useProductsQuery';
+import { getCategoryLabelById } from '../lib/products-adapter';
 import { cn } from '../lib/utils';
 import { Filter, X } from 'lucide-react';
 import { isFeatureEnabled } from '../lib/feature-flags';
@@ -133,7 +134,7 @@ const Products = () => {
           )}>
             <ProductFilters
               filters={{
-                category: categoryId ? categories[categoryId] || 'Tất cả' : 'Tất cả',
+                category: getCategoryLabelById(categoryId) || 'Tất cả',
                 search: '',
                 priceMin: 0,
                 priceMax: 1000000,
