@@ -158,7 +158,7 @@ const Products = () => {
               <div className="text-center py-8" role="status" aria-live="polite" aria-busy="true">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
                 <p className="text-muted-foreground">Đang tải sản phẩm...</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
                   {Array.from({ length: limit }).map((_, index) => (
                     <ProductSkeleton key={index} />
                   ))}
@@ -175,7 +175,7 @@ const Products = () => {
               />
             ) : (
               // Products Grid
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {productsData.data.items.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
