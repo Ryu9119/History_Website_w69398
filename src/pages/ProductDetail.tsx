@@ -114,12 +114,13 @@ const ProductDetail: React.FC = () => {
         <section aria-labelledby="gallery-heading">
           <h2 id="gallery-heading" className="sr-only">Thư viện hình ảnh</h2>
           <div className="bg-card border border-border rounded-md p-3">
-            <div className="aspect-square bg-muted rounded flex items-center justify-center overflow-hidden">
+            <div className="aspect-[4/3] bg-muted rounded flex items-center justify-center overflow-hidden">
               {/* Using placeholder since no real images available */}
               <img
                 src={images[activeIndex]?.src}
                 alt={images[activeIndex]?.alt}
                 className="object-cover w-full h-full"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/placeholder.jpg'; }}
               />
             </div>
 
@@ -138,7 +139,12 @@ const ProductDetail: React.FC = () => {
                     activeIndex === idx ? "ring-2 ring-ring" : ""
                   )}
                 >
-                  <img src={img.src} alt={img.alt} className="object-cover w-full h-full" />
+                  <img
+                    src={img.src}
+                    alt={img.alt}
+                    className="object-cover w-full h-full"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/placeholder.jpg'; }}
+                  />
                 </button>
               ))}
             </div>
@@ -151,6 +157,20 @@ const ProductDetail: React.FC = () => {
             <h1 className="text-2xl font-semibold text-card-foreground">{product.name}</h1>
             <p className="text-primary text-xl font-bold mt-2">{formatPrice(product.price)}</p>
             <p className="text-muted-foreground mt-3">{product.description}</p>
+            <div className="mt-3">
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-secondary text-secondary-foreground border border-border">
+                {product.category}
+              </span>
+            </div>
+            <div className="mt-4">
+              <button
+                type="button"
+                className="px-4 py-2 rounded-md bg-primary text-primary-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label="Thêm vào giỏ (giả lập)"
+              >
+                Thêm vào giỏ
+              </button>
+            </div>
           </div>
 
           <div className="bg-card border border-border rounded-md p-4">
