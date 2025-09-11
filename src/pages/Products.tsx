@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
@@ -51,6 +51,11 @@ const Products = () => {
     }
 
     setSearchParams(params);
+    // Scroll to top and focus grid after filter changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      gridRef.current?.focus();
+    }, 0);
   };
 
   // Handle filter changes
@@ -59,11 +64,18 @@ const Products = () => {
   };
 
 
+  // SR-friendly grid focus ref
+  const gridRef = useRef<HTMLDivElement | null>(null);
+
   // Handle page change
   const handlePageChange = (newPage: number) => {
     updateURLParams({ page: newPage });
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Focus grid for SR users after pagination
+    setTimeout(() => {
+      gridRef.current?.focus();
+    }, 0);
   };
 
   // Handle clear filters
@@ -176,7 +188,12 @@ const Products = () => {
               />
             ) : (
               // Products Grid
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div
+                ref={gridRef}
+                tabIndex={-1}
+                aria-label="Lưới sản phẩm"
+                className="grid grid-cols-1 md:grid-cols-3 gap-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
                 {productsData.data.items.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
