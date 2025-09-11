@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProductByIdQuery } from '../hooks/useProductsQuery';
 import { cn } from '../lib/utils';
@@ -32,6 +32,23 @@ const ProductDetail: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const onSelect = (index: number) => setActiveIndex(index);
+
+  // Focus management: focus main heading on successful load
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  useEffect(() => {
+    if (product && headingRef.current) {
+      // Update title
+      document.title = `${product.name} – History Website`;
+      // Focus visually hidden heading for SR users
+      headingRef.current.focus();
+    }
+  }, [product]);
+
+  // Scroll restoration and gallery reset when switching product id
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    setActiveIndex(0);
+  }, [id]);
 
   const related = useMemo(() => {
     if (!product) return [] as Product[];
@@ -132,7 +149,7 @@ const ProductDetail: React.FC = () => {
                   aria-selected={activeIndex === idx}
                   aria-label={`Hình ${idx + 1}`}
                   onClick={() => onSelect(idx)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') onSelect(idx); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(idx); } }}
                   className={cn(
                     "aspect-square rounded border border-border overflow-hidden",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -151,12 +168,26 @@ const ProductDetail: React.FC = () => {
           </div>
         </section>
 
+        {/* Live region (sr-only) for screen readers */}
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {product ? `Đã tải sản phẩm: ${product.name}` : ''}
+        </div>
+
+        {/* Main content heading for SR focus */}
+        <h1
+          ref={headingRef}
+          tabIndex={-1}
+          className="sr-only"
+        >
+          {product?.name || 'Chi tiết sản phẩm'}
+        </h1>
+
         {/* Info + Specs */}
         <section className="space-y-6">
           <div className="bg-card border border-border rounded-md p-4">
-            <h1 className="text-2xl font-semibold text-card-foreground">{product.name}</h1>
+            <h2 className="text-2xl font-semibold text-card-foreground">{product.name}</h2>
             <p className="text-primary text-xl font-bold mt-2">{formatPrice(product.price)}</p>
-            <p className="text-muted-foreground mt-3">{product.description}</p>
+            <p className="text-muted-foreground mt-3">{product.description?.trim() ? product.description : 'Đang cập nhật'}</p>
             <div className="mt-3">
               <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-secondary text-secondary-foreground border border-border">
                 {product.category}
@@ -178,19 +209,19 @@ const ProductDetail: React.FC = () => {
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
               <div>
                 <dt className="text-sm text-muted-foreground">Danh mục</dt>
-                <dd className="text-sm text-card-foreground">{product.category}</dd>
+                <dd className="text-sm text-card-foreground">{product.category || 'Đang cập nhật'}</dd>
               </div>
               <div>
                 <dt className="text-sm text-muted-foreground">Mã sản phẩm</dt>
-                <dd className="text-sm text-card-foreground">#{product.id}</dd>
+                <dd className="text-sm text-card-foreground">#{product.id ?? '—'}</dd>
               </div>
               <div>
                 <dt className="text-sm text-muted-foreground">Ngày tạo</dt>
-                <dd className="text-sm text-card-foreground">{new Date(product.createdAt).toLocaleDateString('vi-VN')}</dd>
+                <dd className="text-sm text-card-foreground">{product.createdAt ? new Date(product.createdAt).toLocaleDateString('vi-VN') : 'Đang cập nhật'}</dd>
               </div>
               <div>
                 <dt className="text-sm text-muted-foreground">Đánh giá</dt>
-                <dd className="text-sm text-card-foreground">{product.rating}</dd>
+                <dd className="text-sm text-card-foreground">{Number.isFinite(product.rating) ? product.rating : 'Đang cập nhật'}</dd>
               </div>
             </dl>
           </div>
