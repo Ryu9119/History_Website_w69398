@@ -10,7 +10,23 @@ export const useProductsQuery = (params: UseProductsQueryParams = {}) => {
 
   return useQuery<ProductsResponse, Error>({
     queryKey: ['products', queryParams],
-    queryFn: () => getProducts(queryParams),
+    queryFn: async () => {
+      // Dev-only test toggles via URL params
+      if (import.meta.env.DEV) {
+        const sp = new URLSearchParams(window.location.search);
+        const shouldSlow = sp.get('slow') === '1';
+        const shouldError = sp.get('error') === '1';
+        if (shouldSlow) {
+          // Ensure at least ~500ms delay to avoid skeleton flicker
+          const delay = 500 + Math.floor(Math.random() * 700);
+          await new Promise((r) => setTimeout(r, delay));
+        }
+        if (shouldError) {
+          throw new Error('forced-error-products');
+        }
+      }
+      return getProducts(queryParams);
+    },
     enabled,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
@@ -40,6 +56,20 @@ export const useProductByIdQuery = (id: number | undefined) => {
     queryKey: ['product', id],
     queryFn: async () => {
       if (typeof id !== 'number' || Number.isNaN(id)) throw new Error('invalid-id');
+      // Dev-only test toggles via URL params
+      if (import.meta.env.DEV) {
+        const sp = new URLSearchParams(window.location.search);
+        const shouldSlow = sp.get('slow') === '1';
+        const shouldError = sp.get('error') === '1';
+        if (shouldSlow) {
+          // Ensure at least ~500ms delay to avoid skeleton flicker
+          const delay = 500 + Math.floor(Math.random() * 700);
+          await new Promise((r) => setTimeout(r, delay));
+        }
+        if (shouldError) {
+          throw new Error('forced-error-product');
+        }
+      }
       const product = await getProductById(id);
       return { product };
     },
