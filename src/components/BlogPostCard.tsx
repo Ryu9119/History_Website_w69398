@@ -18,16 +18,18 @@ export const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, className }) =
       )}
     >
       <Link to={`/blog/${slug}`} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background">
-        {coverUrl ? (
+        <div className="w-full h-40 bg-muted overflow-hidden">
           <img
-            src={coverUrl}
+            src={coverUrl || '/images/placeholder-cover.svg'}
             alt={`Ảnh bìa: ${title}`}
-            className="w-full h-40 object-cover"
+            className="w-full h-full object-cover"
             loading="lazy"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = '/images/placeholder-cover.svg';
+            }}
           />
-        ) : (
-          <div className="w-full h-40 bg-muted" aria-label="Không có ảnh bìa" />
-        )}
+        </div>
       </Link>
 
       <div className="p-4 flex-1 flex flex-col gap-2">
