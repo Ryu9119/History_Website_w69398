@@ -61,6 +61,17 @@ const BlogContentRenderer: React.FC<BlogContentRendererProps> = ({
     }
   };
 
+  // Handle missing or empty content
+  if (!content || content.length === 0) {
+    return (
+      <div className={`prose prose-lg max-w-none ${className}`}>
+        <p className="text-muted-foreground italic">
+          Nội dung đang được cập nhật...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className={`prose prose-lg max-w-none ${className}`}>
       {content.map((block, index) => renderBlock(block, index))}
