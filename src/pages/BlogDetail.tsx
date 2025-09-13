@@ -1,15 +1,62 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, User, Clock, Tag } from 'lucide-react';
 import Header from '@/components/Header';
-import { useBlogDetail } from '@/hooks/useBlogDetail';
+import { usePostBySlugQuery } from '@/hooks/usePostBySlugQuery';
+import { useRelatedPosts } from '@/hooks/useRelatedPosts';
 import BlogContentRenderer from '@/components/BlogContentRenderer';
 import RelatedPosts from '@/components/RelatedPosts';
 import ErrorState from '@/components/ErrorState';
 
 const BlogDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { post, isLoading, isError, relatedPosts, retry } = useBlogDetail(slug || '');
+  const mainContentRef = useRef<HTMLHeadingElement>(null);
+  
+  // Use new React Query hook
+  const { 
+    data: post, 
+    isLoading, 
+    isError, 
+    error,
+    refetch 
+  } = usePostBySlugQuery(slug || '');
+  
+  // Get related posts
+  const relatedPosts = useRelatedPosts(post);
+  
+  // Focus management and scroll-to-top on slug change
+  useEffect(() => {
+    if (post && mainContentRef.current) {
+      // Scroll to top
+      window.scrollTo(0, 0);
+      // Focus main heading for screen readers
+      mainContentRef.current.focus();
+    }
+  }, [slug, post]);
+  
+  // Update document title
+  useEffect(() => {
+    if (post) {
+      document.title = `${post.title} – Lịch Sử Việt Nam`;
+    } else {
+      document.title = 'Lịch Sử Việt Nam';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.title = 'Lịch Sử Việt Nam';
+    };
+  }, [post]);
+  
+  const retry = () => {
+    // Remove error param in dev mode for smooth demo
+    if (import.meta.env.DEV && window.location.search.includes('error=1')) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('error');
+      window.history.replaceState({}, '', url.toString());
+    }
+    refetch();
+  };
 
   // Loading state
   if (isLoading) {
@@ -87,6 +134,11 @@ const BlogDetail = () => {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       
+      {/* sr-only live region for loading announcements */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {isLoading ? 'Đang tải bài viết...' : ''}
+      </div>
+      
       {/* Back Button */}
       <div className="bg-card border-b border-border">
         <div className="container mx-auto px-4 py-4">
@@ -109,12 +161,17 @@ const BlogDetail = () => {
             <div className="mb-4">
               <span className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">
                 <Tag className="w-4 h-4" />
-                {post.category}
+                {post.category || 'Chưa phân loại'}
               </span>
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
+            <h1 
+              ref={mainContentRef}
+              id="main-content"
+              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
+              tabIndex={-1}
+            >
               {post.title}
             </h1>
 
@@ -122,40 +179,42 @@ const BlogDetail = () => {
             <div className="flex flex-wrap items-center gap-6 text-muted-foreground mb-6">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span>{post.author}</span>
+                <span>{post.author || 'Tác giả'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <time dateTime={post.createdAt}>
-                  {new Date(post.createdAt).toLocaleDateString('vi-VN', {
+                  {post.createdAt ? new Date(post.createdAt).toLocaleDateString('vi-VN', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
-                  })}
+                  }) : 'Đang cập nhật'}
                 </time>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                <span>{post.readTime} phút đọc</span>
+                <span>{post.readTime || 5} phút đọc</span>
               </div>
             </div>
 
             {/* Excerpt */}
             <p className="text-xl text-muted-foreground leading-relaxed mb-8">
-              {post.excerpt}
+              {post.excerpt || 'Đang cập nhật'}
             </p>
           </header>
 
           {/* Featured Image */}
-          {post.coverUrl && (
-            <div className="mb-8">
-              <img
-                src={post.coverUrl}
-                alt={post.title}
-                className="w-full h-96 object-cover rounded-xl shadow-lg"
-              />
-            </div>
-          )}
+          <div className="mb-8">
+            <img
+              src={post.coverUrl || '/images/placeholder-cover.svg'}
+              alt={`Ảnh bìa: ${post.title}`}
+              className="w-full h-96 object-cover rounded-xl shadow-lg"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/placeholder-cover.svg';
+              }}
+            />
+          </div>
 
           {/* Blog Content */}
           <div className="bg-card border border-border rounded-xl p-8 mb-8">
