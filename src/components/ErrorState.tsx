@@ -5,12 +5,16 @@ import { Button } from './ui/button';
 
 interface ErrorStateProps {
   message?: string;
+  title?: string;
+  description?: string;
   onRetry?: () => void;
   className?: string;
 }
 
 const ErrorState: React.FC<ErrorStateProps> = ({ 
-  message = "Không thể tải danh sách sản phẩm", 
+  message = "Không thể tải danh sách sản phẩm",
+  title = "Đã xảy ra lỗi",
+  description,
   onRetry, 
   className 
 }) => {
@@ -22,10 +26,10 @@ const ErrorState: React.FC<ErrorStateProps> = ({
     )}>
       <AlertCircle className="w-16 h-16 text-destructive mb-4" />
       <h3 className="text-lg font-semibold text-card-foreground mb-2">
-        Đã xảy ra lỗi
+        {title}
       </h3>
       <p className="text-muted-foreground max-w-md mb-6">
-        {message}
+        {description || message}
       </p>
       {onRetry && (
         <Button onClick={onRetry} className="flex items-center space-x-2">
