@@ -84,7 +84,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
       )}>
         <Search className="w-16 h-16 text-muted-foreground mb-4" />
         <h3 className="text-lg font-semibold text-card-foreground mb-2">
-          Không tìm thấy bộ thẻ
+          Chưa có bộ thẻ nào
         </h3>
         <p className="text-muted-foreground max-w-md mb-6">
           Không có bộ thẻ nào phù hợp với bộ lọc của bạn. 
