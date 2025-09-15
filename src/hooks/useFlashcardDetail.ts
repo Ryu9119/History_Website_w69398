@@ -19,13 +19,15 @@ export function useFlashcardDetail(deckId: string): UseFlashcardDetailResult {
   const [reloadKey, setReloadKey] = useState(0);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const shouldForceError = searchParams.get('error') === '1';
+  const shouldForceError = import.meta.env.DEV && searchParams.get('error') === '1';
+  const shouldSlow = import.meta.env.DEV && searchParams.get('slow') === '1';
 
   useEffect(() => {
     let isMounted = true;
     setIsLoading(true);
     setIsError(false);
 
+    const delayMs = shouldSlow ? 900 + Math.floor(Math.random() * 300) : 700;
     const timer = setTimeout(() => {
       if (!isMounted) return;
 
@@ -36,12 +38,15 @@ export function useFlashcardDetail(deckId: string): UseFlashcardDetailResult {
       }
 
       const foundDeck = mockFlashcardDecks.find(d => d.id === deckId) || null;
-      const deckCards = mockFlashcardCards.filter(c => c.deckId === deckId);
+      // Skip malformed cards defensively
+      const deckCards = mockFlashcardCards
+        .filter(c => c.deckId === deckId)
+        .filter(c => c && typeof c.front === 'string' && typeof c.back === 'string');
 
       setDeck(foundDeck);
       setCards(deckCards);
       setIsLoading(false);
-    }, 700);
+    }, delayMs);
 
     return () => {
       isMounted = false;
