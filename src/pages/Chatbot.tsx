@@ -15,16 +15,24 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
   const [lastUserMessage, setLastUserMessage] = useState<string | null>(null);
   const [isComposing, setIsComposing] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [shouldSlow, setShouldSlow] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const liveRegionRef = useRef<HTMLDivElement>(null);
+  const retryButtonRef = useRef<HTMLButtonElement>(null);
 
   // Check for error query parameter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('error') === '1') {
+    if (import.meta.env.DEV && urlParams.get('error') === '1') {
       setHasError(true);
+    }
+    // DEV-only slow toggle
+    if (import.meta.env.DEV && urlParams.get('slow') === '1') {
+      setShouldSlow(true);
+    } else {
+      setShouldSlow(false);
     }
   }, []);
 
@@ -55,7 +63,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
   };
 
   const generateId = () => {
@@ -68,11 +76,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputText.trim() || isLoading) return;
+  const handleSendMessage = async (text?: string) => {
+    const candidate = (text ?? inputText).trim();
+    if (!candidate || isLoading) return;
 
-    const userMessage = inputText.trim();
-    setInputText('');
+    const userMessage = candidate;
+    if (text === undefined) {
+      setInputText('');
+    }
     setIsLoading(true);
     setHasError(false);
 
@@ -87,6 +98,9 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
     setMessages(prev => [...prev, newUserMessage]);
     setLastUserMessage(userMessage);
     mockAssistant.addMessage(newUserMessage);
+    announceToScreenReader('Đã gửi');
+    // Return focus to input for continuous typing
+    requestAnimationFrame(() => inputRef.current?.focus());
 
     try {
       // Simulate typing indicator
@@ -94,6 +108,11 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
       
       // Get response from mock assistant
       const response = await mockAssistant.sendMessage(userMessage);
+      // Optional extra delay in DEV when ?slow=1
+      if (shouldSlow) {
+        const extra = 500 + Math.floor(Math.random() * 500); // 500-1000ms
+        await new Promise(r => setTimeout(r, extra));
+      }
       
       // Add bot response
       const newBotMessage: ChatMessage = {
@@ -127,11 +146,17 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
     if (!lastUserMessage) return;
     
     setHasError(false);
-    setInputText(lastUserMessage);
-    await handleSendMessage();
+    await handleSendMessage(lastUserMessage);
     // Focus back to input after retry
     setTimeout(() => inputRef.current?.focus(), 100);
   };
+
+  // When error appears, move focus to the first actionable control (Retry)
+  useEffect(() => {
+    if (hasError) {
+      requestAnimationFrame(() => retryButtonRef.current?.focus());
+    }
+  }, [hasError]);
 
   const handleClearChat = () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa cuộc trò chuyện? Hành động này không thể hoàn tác.')) {
@@ -219,7 +244,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
           </div>
 
           {/* Messages Area */}
-          <div className="h-96 overflow-y-auto p-4">
+          <div className="h-96 overflow-y-auto p-4" role="region" aria-label="Khu vực tin nhắn">
             {messages.length === 0 ? (
               // Empty state
               <div className="flex flex-col items-center justify-center h-full text-center">
@@ -233,11 +258,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
               </div>
             ) : (
               // Messages list
-              <div className="space-y-4">
+              <div className="space-y-4" role="list" aria-live="off">
                 {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex gap-3 ${message.isBot ? '' : 'flex-row-reverse'}`}
+                    role="listitem"
                   >
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       message.isBot 
@@ -272,7 +298,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
                     <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-primary/10 text-primary">
                       <Bot className="w-4 h-4" />
                     </div>
-                    <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-muted text-foreground">
+                    <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-muted text-foreground" aria-label="Trợ lý đang nhập…">
                       <div className="flex space-x-1">
                         <div className={`w-2 h-2 bg-muted-foreground rounded-full ${prefersReducedMotion ? '' : 'animate-bounce'}`} />
                         <div className={`w-2 h-2 bg-muted-foreground rounded-full ${prefersReducedMotion ? '' : 'animate-bounce'}`} style={{ animationDelay: prefersReducedMotion ? '' : '0.1s' }} />
@@ -296,6 +322,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
                 </div>
                 <button
                   onClick={handleRetry}
+                  ref={retryButtonRef}
                   className="flex items-center gap-2 px-3 py-1.5 text-sm bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-md transition-colors"
                   aria-label="Thử lại gửi tin nhắn"
                 >
@@ -338,7 +365,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
                 />
               </div>
               <button
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 disabled={isLoading || !inputText.trim()}
                 className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 aria-label="Gửi tin nhắn"
