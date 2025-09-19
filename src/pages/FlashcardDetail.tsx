@@ -35,7 +35,7 @@ export default function FlashcardDetail() {
   const mainHeadingRef = useRef<HTMLHeadingElement>(null);
   const liveRegionRef = useRef<HTMLDivElement>(null);
   const flippingRef = useRef(false);
-  const keyHandlerRef = useRef<(e: KeyboardEvent) => void>();
+  const keyHandlerRef = useRef<((e: KeyboardEvent) => void) | null>(null);
   const keyActivatedRef = useRef(false);
 
   useEffect(() => {
@@ -50,14 +50,14 @@ export default function FlashcardDetail() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
-  // Focus main heading on successful load
+  // Focus card button on successful load
   useEffect(() => {
-    if (!isLoading && !isError) {
+    if (!isLoading && !isError && cards.length > 0) {
       requestAnimationFrame(() => {
-        mainHeadingRef.current?.focus();
+        cardButtonRef.current?.focus();
       });
     }
-  }, [isLoading, isError]);
+  }, [isLoading, isError, cards.length]);
 
   // Global Arrow navigation (optional but recommended)
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function FlashcardDetail() {
       setSearchParams(next, { replace: true });
     }
     retry();
-    requestAnimationFrame(() => mainHeadingRef.current?.focus());
+    requestAnimationFrame(() => cardButtonRef.current?.focus());
   };
 
   if (isLoading) {
@@ -163,11 +163,9 @@ export default function FlashcardDetail() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
-      {useMemo(() => (
-        <div className="sr-only" aria-live="polite" aria-atomic="true" ref={liveRegionRef}>
-          Đang hiển thị thẻ {currentIndex + 1} trong {total}
-        </div>
-      ), [currentIndex, total])}
+      <div className="sr-only" aria-live="polite" aria-atomic="true" ref={liveRegionRef}>
+        Đang hiển thị thẻ {currentIndex + 1} trong {total}
+      </div>
       <header className="space-y-2">
         <Link to="/flashcards" className="text-sm text-muted-foreground hover:underline">&larr; Danh sách bộ thẻ</Link>
         <h1 ref={mainHeadingRef} id="main-content" tabIndex={-1} className="text-2xl font-semibold">{deck.title || 'Bộ thẻ'}</h1>
