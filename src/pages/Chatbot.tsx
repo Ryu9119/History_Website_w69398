@@ -18,6 +18,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
   const [shouldSlow, setShouldSlow] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const liveRegionRef = useRef<HTMLDivElement>(null);
   const retryButtonRef = useRef<HTMLButtonElement>(null);
@@ -57,13 +58,19 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom when message count changes
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages.length]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    const container = messagesContainerRef.current;
+    if (container) {
+      const behavior = prefersReducedMotion ? 'auto' : 'smooth';
+      container.scrollTo({ top: container.scrollHeight, behavior });
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    }
   };
 
   const generateId = () => {
@@ -244,7 +251,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
           </div>
 
           {/* Messages Area */}
-          <div className="h-96 overflow-y-auto p-4" role="region" aria-label="Khu vực tin nhắn">
+          <div ref={messagesContainerRef} className="h-96 overflow-y-auto p-4" role="region" aria-label="Khu vực tin nhắn">
             {messages.length === 0 ? (
               // Empty state
               <div className="flex flex-col items-center justify-center h-full text-center">
