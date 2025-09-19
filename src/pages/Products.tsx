@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
 import ProductSkeleton from '../components/ProductSkeleton';
 import ProductFilters from '../components/ProductFilters';
@@ -91,7 +90,6 @@ const Products = () => {
   if (mockError) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <Header />
         <div className="container mx-auto px-4 py-6">
           <div className="mb-6 flex items-center justify-between">
             <h1 className="text-3xl font-bold text-foreground">Sản phẩm</h1>
@@ -111,7 +109,6 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
       
       <div className="container mx-auto px-4 py-6">
         {/* Header */}

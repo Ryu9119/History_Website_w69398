@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { loginSchema, type LoginFormData } from '../lib/auth-schemas';
 import { authApi } from '../lib/auth-api';
 import { cn } from '../lib/utils';
-import Header from '../components/Header';
 
 const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +47,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
       <div className="flex min-h-[calc(100vh-64px)] items-center justify-center p-6">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">

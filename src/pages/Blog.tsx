@@ -1,4 +1,3 @@
-import Header from '../components/Header';
 import { BlogPostCard } from '@/components/BlogPostCard';
 import { BlogFilters } from '@/components/BlogFilters';
 import EmptyState from '@/components/EmptyState';
@@ -25,7 +24,6 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
       <div className="p-6">
         {/* sr-only live region for loading announcements */}
         <div ref={liveRegionRef} className="sr-only" aria-live="polite" aria-atomic="true">

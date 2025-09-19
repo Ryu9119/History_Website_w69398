@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, User, Clock, Tag } from 'lucide-react';
-import Header from '@/components/Header';
 import { usePostBySlugQuery } from '@/hooks/usePostBySlugQuery';
 import { useRelatedPosts } from '@/hooks/useRelatedPosts';
 import BlogContentRenderer from '@/components/BlogContentRenderer';
@@ -62,7 +61,6 @@ const BlogDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             {/* Skeleton for header */}
@@ -95,7 +93,6 @@ const BlogDetail = () => {
   if (isError) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <Header />
         <div className="container mx-auto px-4 py-8">
           <ErrorState onRetry={retry} />
         </div>
@@ -107,7 +104,6 @@ const BlogDetail = () => {
   if (!post) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto text-center">
             <div className="text-6xl mb-4">📝</div>
@@ -132,7 +128,6 @@ const BlogDetail = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
       
       {/* sr-only live region for loading announcements */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">

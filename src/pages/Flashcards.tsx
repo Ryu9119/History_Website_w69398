@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import Header from '../components/Header';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import { useFlashcards } from '@/hooks/useFlashcards';
@@ -33,7 +32,6 @@ const Flashcards = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {isLoading ? 'Đang tải bộ thẻ...' : ''}
       </div>

@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import Header from '../components/Header';
 import AdminStatsCards from '../components/AdminStatsCards';
 import AdminDataTable from '../components/AdminDataTable';
 import AdminErrorState from '../components/AdminErrorState';
@@ -70,7 +69,6 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
       
       {/* Screen reader live region */}
       <div
