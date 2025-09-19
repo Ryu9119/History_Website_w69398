@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:dev": "tsc -b && vite build --mode development",
-    "lint": "eslint .",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:configs": "eslint vite.config.ts tailwind.config.js postcss.config.js eslint.config.js",
     "typecheck": "tsc -b --pretty false",
     "format": "eslint . --fix",
     "preview": "vite preview"
