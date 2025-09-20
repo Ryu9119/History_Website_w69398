@@ -43,7 +43,7 @@ export function useProductDetail(productId: number): UseProductDetailResult {
       try {
         const found = mockProducts.find(p => p.id === productId) || null;
         setProduct(found);
-      } catch (e) {
+      } catch {
         setError('Đã xảy ra lỗi khi tải sản phẩm.');
       } finally {
         setIsLoading(false);

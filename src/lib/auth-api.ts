@@ -10,14 +10,14 @@ export interface User {
   updatedAt: string;
 }
 
-export interface LoginRequest extends LoginFormData {}
+export type LoginRequest = LoginFormData
 
 export interface LoginResponse {
   token: string;
   user: User;
 }
 
-export interface RegisterRequest extends RegisterFormData {}
+export type RegisterRequest = RegisterFormData
 
 export interface RegisterResponse {
   success: boolean;
@@ -121,11 +121,11 @@ export const authApi = {
     throw new Error('Not implemented in Day 6');
   },
 
-  async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+  async forgotPassword(): Promise<{ success: boolean; message: string }> {
     throw new Error('Not implemented in Day 6');
   },
 
-  async resetPassword(token: string, password: string): Promise<{ success: boolean; message: string }> {
+  async resetPassword(): Promise<{ success: boolean; message: string }> {
     throw new Error('Not implemented in Day 6');
   },
 };

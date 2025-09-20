@@ -40,7 +40,7 @@ export const useBlogDetail = (slug: string) => {
     if (slug) {
       fetchBlogDetail();
     }
-  }, [slug, location.search]);
+  }, [slug, location.search, shouldForceError]);
 
   // Get related posts (same category, max 3, exclude current)
   const relatedPosts = useMemo(() => {

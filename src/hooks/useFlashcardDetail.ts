@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { type FlashcardDeck, mockFlashcardDecks } from '@/lib/mock-flashcards';
 import { mockFlashcardCards, type FlashcardCard } from '@/lib/mock-flashcard-cards';
@@ -52,9 +52,8 @@ export function useFlashcardDetail(deckId: string): UseFlashcardDetailResult {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [deckId, reloadKey, shouldForceError, location.search]);
+  }, [deckId, reloadKey, shouldForceError, shouldSlow, location.search]);
 
-  const cardCount = useMemo(() => cards.length, [cards]);
   // Keep API shape simple but allow consumers to derive counts
   const retry = () => setReloadKey(k => k + 1);
 

@@ -58,12 +58,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Scroll to bottom when message count changes
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages.length]);
-
-  const scrollToBottom = () => {
+  const scrollToBottom = React.useCallback(() => {
     const container = messagesContainerRef.current;
     if (container) {
       const behavior = prefersReducedMotion ? 'auto' : 'smooth';
@@ -71,7 +66,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
     } else {
       messagesEndRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
     }
-  };
+  }, [prefersReducedMotion]);
+
+  // Scroll to bottom when message count changes
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages.length, scrollToBottom]);
 
   const generateId = () => {
     return Date.now().toString() + Math.random().toString(36).substr(2, 9);
@@ -143,7 +143,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !(e.nativeEvent as any).isComposing && !isComposing) {
+    if (e.key === 'Enter' && !e.shiftKey && !(e.nativeEvent as KeyboardEvent).isComposing && !isComposing) {
       e.preventDefault();
       handleSendMessage();
     }

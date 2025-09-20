@@ -46,7 +46,7 @@ export const useProducts = (): UseProductsReturn => {
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = products.filter(product => {
+    const filtered = products.filter(product => {
       // Category filter
       if (filters.category !== 'Tất cả' && product.category !== filters.category) {
         return false;
