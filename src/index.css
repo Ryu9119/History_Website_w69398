@@ -53,6 +53,45 @@ All colors MUST be HSL.
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Red color palette for Thiên Sử Ký - Exact match with frontend_new */
+    --red-50: 0 86% 97%;   /* #fef2f2 */
+    --red-100: 0 93% 94%;  /* #fee2e2 */
+    --red-200: 0 96% 89%;  /* #fecaca */
+    --red-300: 0 94% 82%;  /* #fca5a5 */
+    --red-400: 0 91% 71%;  /* #f87171 */
+    --red-500: 0 84% 60%;  /* #ef4444 */
+    --red-600: 0 72% 51%;  /* #dc2626 */
+    --red-700: 0 74% 42%;  /* #b91c1c */
+    --red-800: 0 70% 35%;  /* #991b1b */
+    --red-900: 0 63% 31%;  /* #7f1d1d */
+    --red-950: 0 75% 15%;  /* #450a0a */
+
+    /* Green color palette for difficulty levels */
+    --green-50: 120 60% 97%;
+    --green-100: 120 60% 94%;
+    --green-200: 120 60% 89%;
+    --green-300: 120 60% 82%;
+    --green-400: 120 60% 71%;
+    --green-500: 120 60% 60%;
+    --green-600: 120 60% 51%;
+    --green-700: 120 60% 42%;
+    --green-800: 120 60% 35%;
+    --green-900: 120 60% 31%;
+    --green-950: 120 60% 15%;
+
+    /* Yellow color palette for difficulty levels */
+    --yellow-50: 45 100% 97%;
+    --yellow-100: 45 100% 94%;
+    --yellow-200: 45 100% 89%;
+    --yellow-300: 45 100% 82%;
+    --yellow-400: 45 100% 71%;
+    --yellow-500: 45 100% 60%;
+    --yellow-600: 45 100% 51%;
+    --yellow-700: 45 100% 42%;
+    --yellow-800: 45 100% 35%;
+    --yellow-900: 45 100% 31%;
+    --yellow-950: 45 100% 15%;
   }
 
   .dark {
@@ -91,6 +130,45 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Red color palette for Thiên Sử Ký - Dark mode */
+    --red-50: 0 75% 15%;
+    --red-100: 0 63% 31%;
+    --red-200: 0 70% 35%;
+    --red-300: 0 74% 42%;
+    --red-400: 0 72% 51%;
+    --red-500: 0 84% 60%;
+    --red-600: 0 91% 71%;
+    --red-700: 0 94% 82%;
+    --red-800: 0 96% 89%;
+    --red-900: 0 93% 94%;
+    --red-950: 0 86% 97%;
+
+    /* Green color palette for difficulty levels - Dark mode */
+    --green-50: 120 60% 15%;
+    --green-100: 120 60% 31%;
+    --green-200: 120 60% 35%;
+    --green-300: 120 60% 42%;
+    --green-400: 120 60% 51%;
+    --green-500: 120 60% 60%;
+    --green-600: 120 60% 71%;
+    --green-700: 120 60% 82%;
+    --green-800: 120 60% 89%;
+    --green-900: 120 60% 94%;
+    --green-950: 120 60% 97%;
+
+    /* Yellow color palette for difficulty levels - Dark mode */
+    --yellow-50: 45 100% 15%;
+    --yellow-100: 45 100% 31%;
+    --yellow-200: 45 100% 35%;
+    --yellow-300: 45 100% 42%;
+    --yellow-400: 45 100% 51%;
+    --yellow-500: 45 100% 60%;
+    --yellow-600: 45 100% 71%;
+    --yellow-700: 45 100% 82%;
+    --yellow-800: 45 100% 89%;
+    --yellow-900: 45 100% 94%;
+    --yellow-950: 45 100% 97%;
   }
 }
 
