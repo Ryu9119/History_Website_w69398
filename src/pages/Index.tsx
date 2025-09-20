@@ -4,7 +4,6 @@ import BannerSection from '../components/BannerSection';
 import ProductSection from '../components/ProductSection';
 import BlogSection from '../components/BlogSection';
 import FlashcardSection from '../components/FlashcardSection';
-import Footer from '../components/Footer';
 
 const Index = () => {
   return (
@@ -14,7 +13,6 @@ const Index = () => {
       <ProductSection isHomePage={true} />
       <BlogSection isHomePage={true} />
       <FlashcardSection isHomePage={true} />
-      <Footer />
     </div>
   );
 };
