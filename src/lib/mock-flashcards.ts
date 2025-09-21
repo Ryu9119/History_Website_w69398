@@ -6,6 +6,9 @@ export interface FlashcardDeck {
   category: string;
   difficulty: FlashcardDifficulty;
   coverImage?: string;
+  description: string;
+  cardCount: number;
+  estimatedTime: number;
   updatedAt: string;
 }
 
@@ -25,6 +28,9 @@ export const mockFlashcardDecks: FlashcardDeck[] = [
     category: 'Thời kỳ dựng nước',
     difficulty: 'Beginner',
     coverImage: '/images/placeholder.jpg',
+    description: 'Học về các triều đại đầu tiên của Việt Nam, từ Hùng Vương đến An Dương Vương.',
+    cardCount: 25,
+    estimatedTime: 15,
     updatedAt: '2025-01-15',
   },
   {
@@ -33,6 +39,9 @@ export const mockFlashcardDecks: FlashcardDeck[] = [
     category: 'Thời kỳ Bắc thuộc',
     difficulty: 'Intermediate',
     coverImage: '/images/placeholder.jpg',
+    description: 'Tìm hiểu về các cuộc khởi nghĩa chống Bắc thuộc như Hai Bà Trưng, Bà Triệu.',
+    cardCount: 35,
+    estimatedTime: 20,
     updatedAt: '2025-01-10',
   },
   {
@@ -41,6 +50,9 @@ export const mockFlashcardDecks: FlashcardDeck[] = [
     category: 'Thời kỳ độc lập',
     difficulty: 'Beginner',
     coverImage: '/images/placeholder.jpg',
+    description: 'Khám phá các triều đại Ngô, Đinh, Tiền Lê và sự nghiệp dựng nước.',
+    cardCount: 30,
+    estimatedTime: 18,
     updatedAt: '2025-01-11',
   },
   {
@@ -49,6 +61,9 @@ export const mockFlashcardDecks: FlashcardDeck[] = [
     category: 'Cận đại',
     difficulty: 'Intermediate',
     coverImage: '/images/placeholder.jpg',
+    description: 'Tìm hiểu về các cuộc cải cách và biến động xã hội trong thời kỳ cận đại.',
+    cardCount: 40,
+    estimatedTime: 25,
     updatedAt: '2025-01-05',
   },
   {
@@ -57,6 +72,9 @@ export const mockFlashcardDecks: FlashcardDeck[] = [
     category: 'Hiện đại',
     difficulty: 'Advanced',
     coverImage: '/images/placeholder.jpg',
+    description: 'Nghiên cứu về các cuộc cách mạng và quá trình giành độc lập dân tộc.',
+    cardCount: 50,
+    estimatedTime: 30,
     updatedAt: '2025-01-02',
   },
   {
@@ -64,6 +82,10 @@ export const mockFlashcardDecks: FlashcardDeck[] = [
     title: 'Thời kỳ dựng nước nâng cao',
     category: 'Thời kỳ dựng nước',
     difficulty: 'Advanced',
+    coverImage: '/images/placeholder.jpg',
+    description: 'Nghiên cứu sâu về các triều đại đầu tiên và nền văn minh cổ đại.',
+    cardCount: 45,
+    estimatedTime: 28,
     updatedAt: '2025-01-18',
   },
 ];
