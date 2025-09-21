@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { FlashcardDeck } from '@/lib/mock-flashcards';
+import { Clock, BookOpen } from 'lucide-react';
 
 function difficultyToVi(difficulty: FlashcardDeck['difficulty']): string {
   switch (difficulty) {
@@ -48,6 +49,21 @@ export const DeckCard = ({ deck }: DeckCardProps) => {
         <h3 className="text-lg font-semibold text-card-foreground line-clamp-2 leading-tight">
           {deck.title}
         </h3>
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {deck.description}
+        </p>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1">
+              <BookOpen size={12} />
+              <span>{deck.cardCount} thẻ</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Clock size={12} />
+              <span>{deck.estimatedTime} phút</span>
+            </div>
+          </div>
+        </div>
         <Link
           to={`/flashcards/${deck.id}`}
           className="inline-flex items-center text-sm text-primary hover:text-primary/80 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded font-medium transition-colors duration-200"
