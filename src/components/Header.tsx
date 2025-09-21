@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, ShoppingCart, User as UserIcon, MessageCircle } from 'lucide-react';
+import { Menu, X, User as UserIcon, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
@@ -17,7 +17,7 @@ const Header = () => {
   ];
 
   return (
-    <header className={cn("bg-primary text-primary-foreground shadow-lg sticky top-0 z-50 border-b border-border")}>
+    <header className={cn("bg-primary text-primary-foreground shadow-lg sticky top-0 z-50")}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
