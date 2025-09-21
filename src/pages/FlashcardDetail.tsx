@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useFlashcardDetail } from '@/hooks/useFlashcardDetail';
 import { type FlashcardDeck } from '@/lib/mock-flashcards';
 
@@ -28,9 +28,13 @@ export default function FlashcardDetail() {
   const { id } = useParams<{ id: string }>();
   const { deck, cards, isLoading, isError, retry } = useFlashcardDetail(id || '');
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFront, setIsFront] = useState(true);
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [viewedCards, setViewedCards] = useState<Set<number>>(new Set());
+  const [isCompleted, setIsCompleted] = useState(false);
   const cardButtonRef = useRef<HTMLButtonElement>(null);
   const mainHeadingRef = useRef<HTMLHeadingElement>(null);
   const liveRegionRef = useRef<HTMLDivElement>(null);
@@ -41,14 +45,43 @@ export default function FlashcardDetail() {
   useEffect(() => {
     // Reset to front when card changes
     setIsFront(true);
+    setIsFlipping(false);
+    // Mark current card as viewed
+    setViewedCards(prev => new Set([...prev, currentIndex]));
   }, [currentIndex]);
+
+  // Mark current card as viewed when component mounts or cards change
+  useEffect(() => {
+    if (cards.length > 0) {
+      setViewedCards(prev => new Set([...prev, currentIndex]));
+    }
+  }, [cards.length, currentIndex]);
 
   // On id change: reset local state and scroll to top
   useEffect(() => {
     setCurrentIndex(0);
     setIsFront(true);
+    setIsFlipping(false);
+    setViewedCards(new Set());
+    setIsCompleted(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
+
+  // Check completion state
+  useEffect(() => {
+    const total = cards.length;
+    if (viewedCards.size === total && total > 0) {
+      setIsCompleted(true);
+    }
+  }, [viewedCards.size, cards.length]);
+
+  // Update live region for progress
+  useEffect(() => {
+    const total = cards.length;
+    if (liveRegionRef.current) {
+      liveRegionRef.current.textContent = `Đang hiển thị thẻ ${currentIndex + 1} trong ${total}. Đã xem ${viewedCards.size} thẻ.`;
+    }
+  }, [currentIndex, cards.length, viewedCards.size]);
 
   // Focus card button on successful load
   useEffect(() => {
@@ -84,12 +117,20 @@ export default function FlashcardDetail() {
   const canNext = currentIndex < total - 1;
 
   const handleFlip = () => {
-    if (flippingRef.current) return; // debounce simple
+    if (flippingRef.current || isFlipping) return; // debounce simple
     flippingRef.current = true;
-    setIsFront(v => !v);
+    setIsFlipping(true);
+    
+    // Start flip animation
     setTimeout(() => {
+      setIsFront(v => !v);
+    }, 150);
+    
+    // End flip animation
+    setTimeout(() => {
+      setIsFlipping(false);
       flippingRef.current = false;
-    }, 180);
+    }, 300);
   };
 
   const handleKey = (e: React.KeyboardEvent) => {
@@ -106,9 +147,12 @@ export default function FlashcardDetail() {
 
   const handleRetry = () => {
     if (import.meta.env.DEV && searchParams.get('error') === '1') {
-      const next = new URLSearchParams(searchParams);
-      next.delete('error');
-      setSearchParams(next, { replace: true });
+      // Remove error parameter and reload current flashcard
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('error');
+      const newUrl = `/flashcards/${id}${newSearchParams.toString() ? `?${newSearchParams.toString()}` : ''}`;
+      navigate(newUrl);
+      return;
     }
     retry();
     requestAnimationFrame(() => cardButtonRef.current?.focus());
@@ -182,7 +226,7 @@ export default function FlashcardDetail() {
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
       <div className="sr-only" aria-live="polite" aria-atomic="true" ref={liveRegionRef}>
-        Đang hiển thị thẻ {currentIndex + 1} trong {total}
+        Đang hiển thị thẻ {currentIndex + 1} trong {total}. Đã xem {viewedCards.size} thẻ.
       </div>
       <header className="space-y-2">
         <Link to="/flashcards" className="text-sm text-muted-foreground hover:underline">&larr; Danh sách bộ thẻ</Link>
@@ -195,23 +239,56 @@ export default function FlashcardDetail() {
       </header>
 
       <section className="space-y-4">
+        {/* Progress Bar */}
+        <div className="w-full bg-muted rounded-full h-2" role="progressbar" aria-valuenow={viewedCards.size} aria-valuemin={0} aria-valuemax={total} aria-label={`Tiến độ: ${viewedCards.size} trên ${total} thẻ đã xem`}>
+          <div 
+            className="bg-primary h-2 rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${(viewedCards.size / total) * 100}%` }}
+          />
+        </div>
+        
+        {/* Completion State */}
+        {isCompleted && (
+          <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg" role="status" aria-live="polite">
+            <h3 className="text-lg font-semibold text-green-800 mb-2">🎉 Chúc mừng!</h3>
+            <p className="text-green-700">Bạn đã xem hết tất cả {total} thẻ trong bộ này.</p>
+            <div className="mt-3">
+              <Link
+                to="/flashcards"
+                className="inline-flex px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                Xem bộ thẻ khác
+              </Link>
+            </div>
+          </div>
+        )}
+        
         <div className="mx-auto max-w-xl">
-          <button
-            ref={cardButtonRef}
-            type="button"
-            role="button"
-            aria-pressed={!isFront}
-            onClick={() => {
-              if (keyActivatedRef.current) return; // avoid double-trigger after keydown
-              handleFlip();
-            }}
-            onKeyDown={handleKey}
-            className="w-full aspect-[4/3] rounded-lg border border-border bg-card text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring grid place-items-center select-none"
-          >
-            <span className="px-6 text-center text-lg">
-              {isFront ? (current.front?.trim() || 'Đang cập nhật') : (current.back?.trim() || 'Đang cập nhật')}
-            </span>
-          </button>
+          <div className="relative w-full aspect-[4/3]">
+            <button
+              ref={cardButtonRef}
+              type="button"
+              role="button"
+              aria-pressed={!isFront}
+              aria-label={`Thẻ ${currentIndex + 1} của ${total}. ${isFront ? 'Câu hỏi' : 'Câu trả lời'}. Nhấn Enter hoặc Space để lật thẻ.`}
+              onClick={() => {
+                if (keyActivatedRef.current) return; // avoid double-trigger after keydown
+                handleFlip();
+              }}
+              onKeyDown={handleKey}
+              className={`w-full h-full rounded-lg border border-border bg-card text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring grid place-items-center select-none transition-transform duration-300 ease-in-out ${
+                isFlipping ? 'scale-95' : 'scale-100'
+              }`}
+              style={{
+                transform: isFlipping ? 'rotateY(90deg)' : 'rotateY(0deg)',
+                transformStyle: 'preserve-3d'
+              }}
+            >
+              <span className="px-6 text-center text-lg">
+                {isFront ? (current.front?.trim() || 'Đang cập nhật') : (current.back?.trim() || 'Đang cập nhật')}
+              </span>
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center justify-between">
@@ -225,6 +302,7 @@ export default function FlashcardDetail() {
             }}
             disabled={!canPrev}
             aria-disabled={!canPrev}
+            aria-label="Thẻ trước"
             className="px-4 py-2 rounded-md border border-border bg-card text-foreground disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Trước
@@ -240,6 +318,7 @@ export default function FlashcardDetail() {
             }}
             disabled={!canNext}
             aria-disabled={!canNext}
+            aria-label="Thẻ sau"
             className="px-4 py-2 rounded-md border border-border bg-card text-foreground disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Sau
