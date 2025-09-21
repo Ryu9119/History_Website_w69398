@@ -10,6 +10,7 @@ export const usePostBySlugQuery = (slug: string) => {
         const sp = new URLSearchParams(window.location.search);
         const shouldSlow = sp.get('slow') === '1';
         const shouldError = sp.get('error') === '1';
+        const shouldEmpty = sp.get('empty') === '1';
         
         if (shouldSlow) {
           // Ensure at least ~500ms delay to avoid skeleton flicker
@@ -19,6 +20,10 @@ export const usePostBySlugQuery = (slug: string) => {
         
         if (shouldError) {
           throw new Error('forced-error-blog-post');
+        }
+        
+        if (shouldEmpty) {
+          return null; // Return null to trigger "not found" state
         }
       }
       
