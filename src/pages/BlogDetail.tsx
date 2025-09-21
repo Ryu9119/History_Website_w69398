@@ -16,7 +16,6 @@ const BlogDetail = () => {
     data: post, 
     isLoading, 
     isError, 
-    error,
     refetch 
   } = usePostBySlugQuery(slug || '');
   
@@ -33,10 +32,27 @@ const BlogDetail = () => {
     }
   }, [slug, post]);
   
-  // Update document title
+  // Update document title and meta tags for SEO
   useEffect(() => {
     if (post) {
       document.title = `${post.title} – Lịch Sử Việt Nam`;
+      
+      // Update meta description
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute('content', post.excerpt || `${post.title} - Bài viết về lịch sử Việt Nam`);
+      }
+      
+      // Update Open Graph tags
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      const ogDescription = document.querySelector('meta[property="og:description"]');
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      const ogUrl = document.querySelector('meta[property="og:url"]');
+      
+      if (ogTitle) ogTitle.setAttribute('content', post.title);
+      if (ogDescription) ogDescription.setAttribute('content', post.excerpt || `${post.title} - Bài viết về lịch sử Việt Nam`);
+      if (ogImage) ogImage.setAttribute('content', post.coverUrl || '/images/placeholder-cover.svg');
+      if (ogUrl) ogUrl.setAttribute('content', window.location.href);
     } else {
       document.title = 'Lịch Sử Việt Nam';
     }
@@ -94,7 +110,12 @@ const BlogDetail = () => {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <div className="container mx-auto px-4 py-8">
-          <ErrorState onRetry={retry} />
+          <ErrorState 
+            onRetry={retry}
+            message="Không thể tải bài viết"
+            title="Lỗi tải nội dung"
+            description="Đã xảy ra lỗi khi tải bài viết. Vui lòng thử lại sau."
+          />
         </div>
       </div>
     );
@@ -164,7 +185,7 @@ const BlogDetail = () => {
             <h1 
               ref={mainContentRef}
               id="main-content"
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
+              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
               tabIndex={-1}
             >
               {post.title}
@@ -217,7 +238,7 @@ const BlogDetail = () => {
           </div>
 
           {/* Related Posts */}
-          <RelatedPosts posts={relatedPosts} />
+          <RelatedPosts posts={relatedPosts} isLoading={isLoading} />
         </article>
       </div>
     </div>
