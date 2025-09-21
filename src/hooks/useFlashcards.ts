@@ -48,6 +48,15 @@ export function useFlashcards(): UseFlashcardsState {
   }, [location.search]);
 
   const filteredDecks = useMemo(() => {
+    // Check for dev toggles
+    const searchParams = new URLSearchParams(location.search);
+    const shouldForceEmpty = searchParams.get('empty') === '1';
+    
+    // Return empty array if empty toggle is active
+    if (shouldForceEmpty) {
+      return [];
+    }
+
     let list = mockFlashcardDecks;
     if (selectedCategory !== 'Tất cả') {
       list = list.filter(d => d.category === selectedCategory);
@@ -56,7 +65,7 @@ export function useFlashcards(): UseFlashcardsState {
       list = list.filter(d => d.difficulty === selectedDifficulty);
     }
     return list;
-  }, [selectedCategory, selectedDifficulty]);
+  }, [selectedCategory, selectedDifficulty, location.search]);
 
   const clearFilters = () => {
     setSelectedCategory('Tất cả');
