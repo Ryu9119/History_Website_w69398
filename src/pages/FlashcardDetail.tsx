@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useFlashcardDetail } from '@/hooks/useFlashcardDetail';
 import { type FlashcardDeck } from '@/lib/mock-flashcards';
@@ -147,10 +147,28 @@ export default function FlashcardDetail() {
     );
   }
 
-  if (!deck || total === 0) {
+  if (!deck) {
     return (
       <div className="max-w-2xl mx-auto p-4 text-center space-y-4">
         <h1 ref={mainHeadingRef} id="main-content" tabIndex={-1} className="text-xl font-semibold">Không tìm thấy bộ thẻ</h1>
+        <div ref={liveRegionRef} aria-live="polite" aria-atomic="true" className="sr-only">Không tìm thấy bộ thẻ</div>
+        <p className="text-muted-foreground">Bộ thẻ bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+        <div className="flex justify-center gap-3">
+          <Link
+            to="/flashcards"
+            className="px-4 py-2 rounded-md bg-primary text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Quay lại danh sách
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (total === 0) {
+    return (
+      <div className="max-w-2xl mx-auto p-4 text-center space-y-4">
+        <h1 ref={mainHeadingRef} id="main-content" tabIndex={-1} className="text-xl font-semibold">Bộ thẻ trống</h1>
         <Link
           to="/flashcards"
           className="inline-flex px-4 py-2 rounded-md border border-border bg-card text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
