@@ -11,6 +11,8 @@ export const mockFlashcardCards: FlashcardCard[] = [
   { id: '1-1', deckId: '1', front: 'Nước Văn Lang do ai lập?', back: 'Vua Hùng - khoảng thế kỷ VII TCN.' },
   { id: '1-2', deckId: '1', front: 'Kinh đô đầu tiên của Văn Lang?', back: 'Phong Châu (Phú Thọ).' },
   { id: '1-3', deckId: '1', front: 'Đặc trưng kinh tế thời Hùng Vương?', back: 'Nông nghiệp lúa nước, công cụ đồng thau.' },
+  { id: '1-4', deckId: '1', front: 'Tổ chức xã hội thời Văn Lang?', back: 'Lạc hầu, lạc tướng, lạc dân.' },
+  { id: '1-5', deckId: '1', front: 'Tín ngưỡng chính thời Văn Lang?', back: 'Thờ cúng tổ tiên, thần linh tự nhiên.' },
 
   // Deck 2
   { id: '2-1', deckId: '2', front: 'Thời Bắc thuộc kéo dài khoảng?', back: 'Hơn 1.000 năm (179 TCN - 938).' },
