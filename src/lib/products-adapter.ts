@@ -19,8 +19,8 @@ export interface ProductsParams {
 
 // Mock API implementation
 const mockProductsAPI = async (params: ProductsParams): Promise<ProductsResponse> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+  // Simulate network delay (min ~700ms to ensure skeleton visibility)
+  await new Promise(resolve => setTimeout(resolve, 700 + Math.random() * 800));
 
   let filteredProducts = [...mockProducts];
 

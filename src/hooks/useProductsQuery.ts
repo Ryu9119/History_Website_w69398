@@ -16,6 +16,7 @@ export const useProductsQuery = (params: UseProductsQueryParams = {}) => {
         const sp = new URLSearchParams(window.location.search);
         const shouldSlow = sp.get('slow') === '1';
         const shouldError = sp.get('error') === '1';
+        const shouldEmpty = sp.get('empty') === '1';
         if (shouldSlow) {
           // Ensure at least ~500ms delay to avoid skeleton flicker
           const delay = 500 + Math.floor(Math.random() * 700);
@@ -23,6 +24,19 @@ export const useProductsQuery = (params: UseProductsQueryParams = {}) => {
         }
         if (shouldError) {
           throw new Error('forced-error-products');
+        }
+        if (shouldEmpty) {
+          const page = (queryParams as ProductsParams).page ?? 1;
+          const limit = (queryParams as ProductsParams).limit ?? 12;
+          return {
+            data: {
+              items: [],
+              total: 0,
+              page,
+              limit,
+              totalPages: 0,
+            },
+          } as ProductsResponse;
         }
       }
       return getProducts(queryParams);
