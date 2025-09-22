@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import ProductSkeleton from '../components/ProductSkeleton';
+import ProductSort from '../components/ProductSort';
 import ProductFilters from '../components/ProductFilters';
 import EmptyState from '../components/EmptyState';
 import ErrorState from '../components/ErrorState';
@@ -31,6 +32,20 @@ const Products = () => {
   });
 
   const { data: categories = ['Tất cả'] } = useProductCategoriesQuery();
+
+  // Sort handling via URL param
+  const sortBy = searchParams.get('sort') || 'newest';
+  const sortOptions = [
+    { value: 'newest', label: 'Mới nhất' },
+    { value: 'price-asc', label: 'Giá tăng dần' },
+    { value: 'price-desc', label: 'Giá giảm dần' },
+    { value: 'name', label: 'Tên (A→Z)' },
+    { value: 'rating', label: 'Đánh giá' },
+  ];
+
+  const handleSortChange = (newSort: string) => {
+    updateURLParams({ sort: newSort });
+  };
 
   // Update URL params
   const updateURLParams = (newParams: Record<string, string | number | undefined>) => {
@@ -82,6 +97,14 @@ const Products = () => {
     setSearchParams({});
   };
 
+  // Error retry: clear ?error=1 then refetch
+  const handleRetry = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete('error');
+    setSearchParams(params);
+    refetch();
+  };
+
   const toggleMockError = () => {
     setMockError(!mockError);
   };
@@ -100,7 +123,7 @@ const Products = () => {
             )}
           </div>
           <ErrorState 
-            onRetry={() => refetch()}
+            onRetry={handleRetry}
           />
         </div>
       </div>
@@ -156,10 +179,16 @@ const Products = () => {
           {/* Main Content */}
           <div className="flex-1">
             {/* Results Count */}
-            <div className="mb-6 flex items-center justify-end">
+            <div className="mb-6 flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
                 {productsData?.data?.total || 0} sản phẩm
               </div>
+              <ProductSort
+                sortBy={sortBy}
+                onSortChange={handleSortChange}
+                sortOptions={sortOptions}
+                className="w-56"
+              />
             </div>
 
             {/* Content States */}
@@ -191,7 +220,23 @@ const Products = () => {
                 aria-label="Lưới sản phẩm"
                 className="grid grid-cols-1 md:grid-cols-3 gap-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                {productsData.data.items.map((product) => (
+                {([...productsData.data.items] as typeof productsData.data.items)
+                  .sort((a, b) => {
+                    switch (sortBy) {
+                      case 'price-asc':
+                        return a.price - b.price;
+                      case 'price-desc':
+                        return b.price - a.price;
+                      case 'name':
+                        return a.name.localeCompare(b.name);
+                      case 'rating':
+                        return (b.rating ?? 0) - (a.rating ?? 0);
+                      case 'newest':
+                      default:
+                        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    }
+                  })
+                  .map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
