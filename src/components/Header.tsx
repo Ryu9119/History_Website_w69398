@@ -9,6 +9,7 @@ const Header = () => {
   const navItems = [
     { name: 'Trang chủ', href: '/' },
     { name: 'Sản phẩm', href: '/products' },
+    { name: 'Giỏ hàng', href: '/cart' },
     { name: 'Blog lịch sử', href: '/blog' },
     { name: 'Flash Card', href: '/flashcards' },
     { name: 'Chatbot AI', href: '/chatbot', icon: MessageCircle },
