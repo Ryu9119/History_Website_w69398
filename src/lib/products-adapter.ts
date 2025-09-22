@@ -97,13 +97,13 @@ export const getProducts = async (params: ProductsParams = {}): Promise<Products
     } else {
       return await mockProductsAPI(params);
     }
-  } catch (error) {
+  } catch (_err) {
     // If real API fails, fallback to mock for graceful degradation
     if (apiMode === 'real') {
       // Silent fallback to avoid console spam
       return await mockProductsAPI(params);
     }
-    throw error;
+    throw _err;
   }
 };
 
@@ -121,7 +121,7 @@ export const getProductCategories = async (): Promise<string[]> => {
       }
       
       return response.json();
-    } catch (error) {
+    } catch {
       // Silent fallback to avoid console spam
       return ['Tất cả', 'Sách', 'Flashcard', 'Bản đồ', 'Truyện tranh', 'Video', 'Audio'];
     }
@@ -176,7 +176,7 @@ export const getProductById = async (id: number): Promise<Product | null> => {
       // Ensure minimum 700ms for skeleton consistency
       await new Promise((r) => setTimeout(r, 700));
       return mapped;
-    } catch (e) {
+    } catch {
       // Silent fallback to mock for graceful degradation
       return mockFn();
     }
