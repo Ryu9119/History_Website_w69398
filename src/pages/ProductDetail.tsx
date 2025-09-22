@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { addToCart } from '../lib/cart';
+import { toast } from 'sonner';
 import { useProductByIdQuery } from '../hooks/useProductsQuery';
 import { cn } from '../lib/utils';
 import { mockProducts } from '../lib/mock-data';
@@ -97,7 +99,13 @@ const ProductDetail: React.FC = () => {
           <h1 className="text-xl font-semibold text-card-foreground">Đã xảy ra lỗi</h1>
           <p className="text-muted-foreground mt-2">Đã xảy ra lỗi khi tải sản phẩm.</p>
           <button
-            onClick={() => refetch()}
+            onClick={() => {
+              const sp = new URLSearchParams(window.location.search);
+              sp.delete('error');
+              const url = `${window.location.pathname}?${sp.toString()}`.replace(/\?$/,'');
+              window.history.replaceState({}, '', url);
+              refetch();
+            }}
             className="mt-4 px-4 py-2 rounded-md bg-primary text-primary-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Thử lại
@@ -197,7 +205,11 @@ const ProductDetail: React.FC = () => {
               <button
                 type="button"
                 className="px-4 py-2 rounded-md bg-primary text-primary-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                aria-label="Thêm vào giỏ (giả lập)"
+                aria-label="Thêm vào giỏ"
+                onClick={() => {
+                  addToCart({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+                  toast.success('Đã thêm vào giỏ hàng');
+                }}
               >
                 Thêm vào giỏ
               </button>
