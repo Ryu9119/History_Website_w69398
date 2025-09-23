@@ -13,7 +13,7 @@ const Header = () => {
     { name: 'Blog lịch sử', href: '/blog' },
     { name: 'Flash Card', href: '/flashcards' },
     { name: 'Chatbot AI', href: '/chatbot', icon: MessageCircle },
-    { name: 'Đăng nhập', href: '/login', icon: UserIcon },
+    { name: 'Trang cá nhân', href: '/profile', icon: UserIcon },
     { name: 'Admin', href: '/admin', icon: UserIcon },
   ];
 
