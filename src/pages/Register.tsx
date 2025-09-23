@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -14,8 +14,14 @@ const Register = () => {
   const {
     register,
     handleSubmit,
-    reset,
   } = useForm<RegisterFormData>();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (authApi.isAuthenticated()) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   const onSubmit = async (data: RegisterFormData) => {
     // Clear previous errors
@@ -35,6 +41,16 @@ const Register = () => {
 
     setIsSubmitting(true);
     try {
+      // DEV toggles
+      if (import.meta.env.DEV) {
+        const sp = new URLSearchParams(window.location.search);
+        const shouldError = sp.get('error') === '1';
+        await new Promise(resolve => setTimeout(resolve, 700));
+        if (shouldError) {
+          throw new Error('forced-error-register');
+        }
+      }
+      
       await authApi.register(validationResult.data);
       toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
       navigate('/login');

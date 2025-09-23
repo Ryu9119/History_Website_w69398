@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -14,8 +14,14 @@ const Login = () => {
   const {
     register,
     handleSubmit,
-    reset,
   } = useForm<LoginFormData>();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (authApi.isAuthenticated()) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   const onSubmit = async (data: LoginFormData) => {
     // Clear previous errors
@@ -35,9 +41,22 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
+      // DEV toggles
+      if (import.meta.env.DEV) {
+        const sp = new URLSearchParams(window.location.search);
+        const shouldError = sp.get('error') === '1';
+        await new Promise(resolve => setTimeout(resolve, 700));
+        if (shouldError) {
+          throw new Error('forced-error-login');
+        }
+      }
+      
       await authApi.login(validationResult.data);
       toast.success('Đăng nhập thành công!');
-      navigate('/');
+      
+      // Redirect to previous page or default
+      const returnTo = new URLSearchParams(window.location.search).get('returnTo') || '/';
+      navigate(returnTo);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Đăng nhập thất bại');
     } finally {
