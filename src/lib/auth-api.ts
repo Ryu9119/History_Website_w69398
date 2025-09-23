@@ -28,13 +28,13 @@ export interface RegisterResponse {
 export const authApi = {
   // Login with email and password
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    // Mock implementation for Day 6
+    // Mock implementation with localStorage
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // Simulate validation
         if (credentials.email === 'test@example.com' && credentials.password === 'password123') {
           const mockResponse: LoginResponse = {
-            token: 'mock-jwt-token',
+            token: 'mock-jwt-token-' + Date.now(),
             user: {
               id: 1,
               email: credentials.email,
@@ -44,8 +44,16 @@ export const authApi = {
             }
           };
           
-          // Store token only (no localStorage for Day 6)
+          // Store token and user data
           apiUtils.setAuthToken(mockResponse.token);
+          localStorage.setItem('auth_token', mockResponse.token);
+          localStorage.setItem('user_data', JSON.stringify(mockResponse.user));
+          localStorage.setItem('token_expires', (Date.now() + 24 * 60 * 60 * 1000).toString()); // 24 hours
+          
+          // Dispatch auth state change event
+          window.dispatchEvent(new CustomEvent('authStateChanged', { 
+            detail: { isAuthenticated: true, user: mockResponse.user } 
+          }));
           
           resolve(mockResponse);
         } else {
@@ -77,12 +85,26 @@ export const authApi = {
   // Logout
   logout(): void {
     apiUtils.removeAuthToken();
-    // No localStorage usage in Day 6
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
+    localStorage.removeItem('token_expires');
+    
+    // Dispatch auth state change event
+    window.dispatchEvent(new CustomEvent('authStateChanged', { 
+      detail: { isAuthenticated: false, user: null } 
+    }));
   },
 
-  // Get current user (no localStorage in Day 6)
+  // Get current user from localStorage
   getCurrentUser(): User | null {
-    // No localStorage usage in Day 6
+    try {
+      const userData = localStorage.getItem('user_data');
+      if (userData) {
+        return JSON.parse(userData);
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+    }
     return null;
   },
 
@@ -110,10 +132,24 @@ export const authApi = {
 
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    const token = apiUtils.getAuthToken();
-    // No localStorage usage in Day 6 - only check token
+    const token = localStorage.getItem('auth_token');
+    const expires = localStorage.getItem('token_expires');
     
-    return !!token;
+    if (!token || !expires) {
+      return false;
+    }
+    
+    // Check if token is expired
+    const now = Date.now();
+    const expiresAt = parseInt(expires, 10);
+    
+    if (now >= expiresAt) {
+      // Token expired, clear auth data
+      this.logout();
+      return false;
+    }
+    
+    return true;
   },
 
   // Mock functions for Day 6 (not implemented)
