@@ -21,7 +21,6 @@ export function useFlashcardDetail(deckId: string): UseFlashcardDetailResult {
   const searchParams = new URLSearchParams(location.search);
   const shouldForceError = import.meta.env.DEV && searchParams.get('error') === '1';
   const shouldSlow = import.meta.env.DEV && searchParams.get('slow') === '1';
-  const shouldForceEmpty = import.meta.env.DEV && searchParams.get('empty') === '1';
 
   useEffect(() => {
     let isMounted = true;
@@ -34,13 +33,6 @@ export function useFlashcardDetail(deckId: string): UseFlashcardDetailResult {
 
       if (shouldForceError) {
         setIsError(true);
-        setIsLoading(false);
-        return;
-      }
-
-      if (shouldForceEmpty) {
-        setDeck(null);
-        setCards([]);
         setIsLoading(false);
         return;
       }
@@ -60,7 +52,7 @@ export function useFlashcardDetail(deckId: string): UseFlashcardDetailResult {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [deckId, reloadKey, shouldForceError, shouldSlow, shouldForceEmpty, location.search]);
+  }, [deckId, reloadKey, shouldForceError, shouldSlow, location.search]);
 
   // Keep API shape simple but allow consumers to derive counts
   const retry = () => setReloadKey(k => k + 1);
