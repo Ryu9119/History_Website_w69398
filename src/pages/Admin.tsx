@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import AdminStatsCards from '../components/AdminStatsCards';
-import AdminDataTable from '../components/AdminDataTable';
+import SearchFilter from '../components/ui/search-filter';
 import AdminErrorState from '../components/AdminErrorState';
 import AdminEmptyState from '../components/AdminEmptyState';
 import { useAdminStats, useAdminProducts } from '../hooks/useAdminData';
@@ -30,9 +30,10 @@ const Admin = () => {
   const [banners, setBanners] = useState<Array<{ id: number; title: string; imageUrl: string; active: boolean; createdAt: string }>>([]);
   const [bannersLoading, setBannersLoading] = useState(false);
   const [bannersError, setBannersError] = useState<Error | null>(null);
-  const [flashcards, setFlashcards] = useState<Array<{ id: number; topic: string; totalCards: number; createdAt: string }>>([]);
+  const [flashcards, setFlashcards] = useState<Array<{ id: number; topic: string; description?: string; totalCards: number; createdAt: string }>>([]);
   const [flashcardsLoading, setFlashcardsLoading] = useState(false);
   const [flashcardsError, setFlashcardsError] = useState<Error | null>(null);
+  
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [editingBanner, setEditingBanner] = useState<{ id: number; title: string; imageUrl: string; linkUrl?: string; active: boolean } | null>(null);
   const [showFlashcardModal, setShowFlashcardModal] = useState(false);
@@ -94,8 +95,7 @@ const Admin = () => {
     if (roleChecked && activeTab === 'blogs') {
       fetchBlogs();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, roleChecked]);
+  }, [activeTab, roleChecked, fetchBlogs]);
 
   const fetchBanners = async () => {
     setBannersError(null);
@@ -127,8 +127,7 @@ const Admin = () => {
     if (!roleChecked) return;
     if (activeTab === 'banners') fetchBanners();
     if (activeTab === 'flashcards') fetchFlashcards();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, roleChecked]);
+  }, [activeTab, roleChecked, fetchBanners, fetchFlashcards]);
 
   // Focus management and screen reader announcements
   useEffect(() => {
@@ -170,6 +169,7 @@ const Admin = () => {
       liveRegionRef.current.textContent = 'Đang thử lại tải dữ liệu...';
     }
   };
+
 
   const hasError = statsError || productsError;
   const isLoading = statsLoading || productsLoading;
@@ -280,14 +280,106 @@ const Admin = () => {
                   </div>
                 </div>
 
+                {/* SearchFilter for visual parity - functionality disabled to avoid complexity */}
+                <SearchFilter
+                  onSearch={() => {}}
+                  onFilter={() => {}}
+                  searchPlaceholder="Tìm kiếm sản phẩm..."
+                  showSearch={false}
+                  showFilter={false}
+                />
+
                 {products && products.length === 0 && !productsLoading ? (
                   <AdminEmptyState />
                 ) : (
                   <>
-                    <AdminDataTable 
-                      products={products || []}
-                      isLoading={productsLoading}
-                    />
+                    {productsLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                        <p className="mt-2 text-muted-foreground">Đang tải...</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-border">
+                          <thead className="bg-muted/50">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Tên sản phẩm
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Giá
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Trạng thái
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Ngày tạo
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Hành động
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-background divide-y divide-border">
+                            {(products || []).map((product) => (
+                              <tr key={product.id} className="hover:bg-muted/30">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
+                                  {product.name}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    product.status === 'active'
+                                      ? 'bg-primary/10 text-primary'
+                                      : 'bg-muted text-muted-foreground'
+                                  }`}>
+                                    {product.status === 'active' ? 'Hoạt động' : 'Không hoạt động'}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                                  {new Date(product.createdAt).toLocaleDateString('vi-VN')}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                  <div className="flex gap-2">
+                                    <button
+                                      className="text-primary hover:text-primary/80 px-2 py-1 border border-primary/20 rounded hover:bg-primary/10 transition-colors"
+                                      onClick={() => { 
+                                        setEditingProduct({ 
+                                          id: product.id, 
+                                          name: product.name, 
+                                          price: product.price, 
+                                          status: product.status 
+                                        }); 
+                                        setShowProductModal(true); 
+                                      }}
+                                    >
+                                      Sửa
+                                    </button>
+                                    <button
+                                      className="text-red-600 hover:text-red-800 px-2 py-1 border border-red-200 rounded hover:bg-red-50 transition-colors"
+                                      onClick={async () => {
+                                        if (!window.confirm(`Xóa sản phẩm "${product.name}"?`)) return;
+                                        try {
+                                          await adminApi.deleteProduct(product.id);
+                                          toast.success('Xóa sản phẩm thành công');
+                                          await refetchProducts();
+                                        } catch {
+                                          toast.error('Xóa thất bại');
+                                        }
+                                      }}
+                                    >
+                                      Xóa
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
 
                     {/* Simple actions list for demo wiring */}
                     {!productsLoading && (products || []).length > 0 && (
@@ -336,17 +428,17 @@ const Admin = () => {
               <>
                 <div className="mb-4 flex justify-between items-center">
                   <h2 className="text-xl font-semibold">Quản lý Banners</h2>
-                  <div className="flex gap-2">
-                    <input type="text" placeholder="Tìm kiếm..." className="px-2 py-1 border rounded" onChange={() => {/* stub parity */}} />
-                    <select className="px-2 py-1 border rounded" onChange={() => {/* stub parity */}}>
-                      <option value="all">Tất cả</option>
-                      <option value="active">Hiển thị</option>
-                      <option value="inactive">Ẩn</option>
-                    </select>
-                    <button className="px-3 py-1 rounded border" onClick={fetchBanners}>Tải lại</button>
-                    <button className="px-3 py-1 rounded bg-primary text-primary-foreground" onClick={() => { setEditingBanner(null); setShowBannerModal(true); }}>Thêm banner</button>
-                  </div>
+                  <button className="px-3 py-1 rounded bg-primary text-primary-foreground" onClick={() => { setEditingBanner(null); setShowBannerModal(true); }}>Thêm banner</button>
                 </div>
+
+                {/* SearchFilter for visual parity - functionality disabled to avoid complexity */}
+                <SearchFilter
+                  onSearch={() => {}}
+                  onFilter={() => {}}
+                  searchPlaceholder="Tìm kiếm banner..."
+                  showSearch={false}
+                  showFilter={false}
+                />
 
                 {bannersError && (<AdminErrorState onRetry={fetchBanners} isLoading={bannersLoading} />)}
                 {!bannersError && (
@@ -414,17 +506,17 @@ const Admin = () => {
               <>
                 <div className="mb-4 flex justify-between items-center">
                   <h2 className="text-xl font-semibold">Quản lý Flashcards</h2>
-                  <div className="flex gap-2">
-                    <input type="text" placeholder="Tìm kiếm..." className="px-2 py-1 border rounded" onChange={() => {/* stub parity */}} />
-                    <select className="px-2 py-1 border rounded" onChange={() => {/* stub parity */}}>
-                      <option value="all">Tất cả</option>
-                      <option value="lt20">&lt; 20 thẻ</option>
-                      <option value=">=20">≥ 20 thẻ</option>
-                    </select>
-                    <button className="px-3 py-1 rounded border" onClick={fetchFlashcards}>Tải lại</button>
-                    <button className="px-3 py-1 rounded bg-primary text-primary-foreground" onClick={() => { setEditingFlashcard(null); setShowFlashcardModal(true); }}>Thêm bộ thẻ</button>
-                  </div>
+                  <button className="px-3 py-1 rounded bg-primary text-primary-foreground" onClick={() => { setEditingFlashcard(null); setShowFlashcardModal(true); }}>Thêm bộ thẻ</button>
                 </div>
+
+                {/* SearchFilter for visual parity - functionality disabled to avoid complexity */}
+                <SearchFilter
+                  onSearch={() => {}}
+                  onFilter={() => {}}
+                  searchPlaceholder="Tìm kiếm bộ thẻ..."
+                  showSearch={false}
+                  showFilter={false}
+                />
 
                 {flashcardsError && (<AdminErrorState onRetry={fetchFlashcards} isLoading={flashcardsLoading} />)}
                 {!flashcardsError && (
