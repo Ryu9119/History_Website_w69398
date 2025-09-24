@@ -14,11 +14,11 @@ const Footer = () => {
               </div>
               <span className="text-2xl font-bold text-primary-foreground/90">Thiên Sử Ký</span>
             </div>
-            <p className={cn("mb-4 text-muted-foreground")}>
+            <p className={cn("mb-4 text-primary-foreground/70")}>
               Chuyên cung cấp các sản phẩm giáo dục lịch sử chất lượng cao, giúp học sinh và người yêu lịch sử 
               khám phá và hiểu sâu hơn về lịch sử Việt Nam.
             </p>
-            <div className={cn("space-y-2 text-muted-foreground")}> 
+            <div className={cn("space-y-2 text-primary-foreground/70")}> 
               <p>📧 Email: info@thiensuky.com</p>
               <p>📞 Hotline: 1900-1234</p>
               <p>📍 Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM</p>
@@ -27,7 +27,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Liên kết nhanh</h3>
+            <h3 className="text-lg font-semibold mb-4 text-primary-foreground">Liên kết nhanh</h3>
             <ul className="space-y-2">
               <li><a href="/" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Trang chủ</a></li>
               <li><a href="/products" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Sản phẩm</a></li>
@@ -39,7 +39,7 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Hỗ trợ</h3>
+            <h3 className="text-lg font-semibold mb-4 text-primary-foreground">Hỗ trợ</h3>
             <ul className="space-y-2">
               <li><a href="/about" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Về chúng tôi</a></li>
               <li><a href="/contact" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Liên hệ</a></li>
@@ -52,7 +52,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className={cn("border-t mt-8 pt-8 text-center border-border/20")}>
-          <p className={cn("text-muted-foreground")}>
+          <p className={cn("text-primary-foreground/60")}>
             © {new Date().getFullYear()} Thiên Sử Ký. Tất cả quyền được bảo lưu.
           </p>
         </div>

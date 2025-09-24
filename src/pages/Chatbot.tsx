@@ -1,391 +1,337 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Copy, Trash2, RotateCcw } from 'lucide-react';
-import { mockAssistant, ChatMessage } from '../lib/mock-assistant';
+import { Send, Bot, User, BookOpen, UserCheck, Target, Route } from 'lucide-react';
+import { authApi } from '../lib/auth-api';
 
-interface ChatbotProps {
-  error?: boolean; // For testing error state
+interface ChatMessage {
+  id: number;
+  text: string;
+  isBot: boolean;
+  timestamp: Date;
 }
 
-const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
+// Helper để lấy hoặc tạo thread id và lưu vào localStorage
+const getOrCreateThreadId = () => {
+  let threadId = localStorage.getItem('chatbot_thread_id');
+  if (!threadId) {
+    threadId = 'thread_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('chatbot_thread_id', threadId);
+  }
+  return threadId;
+};
+
+const Chatbot = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [hasError, setHasError] = useState(error);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [threadId] = useState(() => getOrCreateThreadId());
   const [lastUserMessage, setLastUserMessage] = useState<string | null>(null);
-  const [isComposing, setIsComposing] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [shouldSlow, setShouldSlow] = useState(false);
-  
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const liveRegionRef = useRef<HTMLDivElement>(null);
-  const retryButtonRef = useRef<HTMLButtonElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Check for error query parameter
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (import.meta.env.DEV && urlParams.get('error') === '1') {
-      setHasError(true);
-    }
-    // DEV-only slow toggle
-    if (import.meta.env.DEV && urlParams.get('slow') === '1') {
-      setShouldSlow(true);
-    } else {
-      setShouldSlow(false);
-    }
-  }, []);
-
-  // Initial skeleton loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsInitialLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Check for reduced motion preference
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-    
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-    
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  const scrollToBottom = React.useCallback(() => {
-    const container = messagesContainerRef.current;
-    if (container) {
-      const behavior = prefersReducedMotion ? 'auto' : 'smooth';
-      container.scrollTo({ top: container.scrollHeight, behavior });
-    } else {
-      messagesEndRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
-    }
-  }, [prefersReducedMotion]);
-
-  // Scroll to bottom when message count changes
-  useEffect(() => {
-    const timeoutId = setTimeout(scrollToBottom, 100);
-    return () => clearTimeout(timeoutId);
-  }, [messages.length, scrollToBottom]);
-
-  const generateId = () => {
-    return Date.now().toString() + Math.random().toString(36).substr(2, 9);
-  };
-
-  const announceToScreenReader = (message: string) => {
-    if (liveRegionRef.current) {
-      liveRegionRef.current.textContent = message;
+  const scrollToBottom = () => {
+    // Scroll within chat container, not the entire page
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   };
 
-  const handleSendMessage = async (text?: string) => {
-    const candidate = (text ?? inputText).trim();
-    if (!candidate || isLoading) return;
-
-    const userMessage = candidate;
-    if (text === undefined) {
-      setInputText('');
+  // Get user ID from authentication on component mount
+  useEffect(() => {
+    const currentUser = authApi.getCurrentUser();
+    if (currentUser) {
+      setUserId(currentUser.id.toString());
     }
-    setIsLoading(true);
-    setHasError(false);
+  }, []);
+
+  // Load chat history when userId is available
+  useEffect(() => {
+    if (userId) {
+      loadChatHistory();
+    }
+  }, [userId]);
+
+  const loadChatHistory = async () => {
+    if (!userId) return;
+    
+    try {
+      // Initialize with welcome message
+      setMessages([
+        {
+          id: 1,
+          text: 'Xin chào! Tôi là AI Assistant của Thiên Sử Ký. Tôi có thể giúp bạn tìm hiểu về lịch sử Việt Nam. Bạn muốn biết điều gì?',
+          isBot: true,
+          timestamp: new Date()
+        }
+      ]);
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      setMessages([
+        {
+          id: 1,
+          text: 'Xin chào! Tôi là AI Assistant của Thiên Sử Ký. Tôi có thể giúp bạn tìm hiểu về lịch sử Việt Nam. Bạn muốn biết điều gì?',
+          isBot: true,
+          timestamp: new Date()
+        }
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    // Only scroll when there's a new message (when length changes)
+    if (messages.length > 0) {
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [messages.length]);
+
+  // Handle prompt button clicks
+  const handlePromptButton = (type: string) => {
+    let promptMessage = '';
+    switch (type) {
+      case 'explore':
+        promptMessage = 'Tôi muốn khám phá các chủ đề lịch sử Việt Nam thú vị. Bạn có thể giới thiệu cho tôi một số chủ đề nổi bật không?';
+        break;
+      case 'personal':
+        promptMessage = 'Tôi muốn tìm hiểu về các nhân vật lịch sử nổi tiếng của Việt Nam. Bạn có thể kể cho tôi về một số nhân vật quan trọng không?';
+        break;
+      case 'challenge':
+        promptMessage = 'Tôi muốn thử thách kiến thức lịch sử của mình. Bạn có thể đưa ra một số câu hỏi thú vị về lịch sử Việt Nam không?';
+        break;
+      case 'roadmap':
+        promptMessage = 'Tôi muốn học lịch sử Việt Nam một cách có hệ thống. Bạn có thể đề xuất một lộ trình học tập cho tôi không?';
+        break;
+      default:
+        return;
+    }
+    sendMessage(promptMessage);
+  };
+
+  const sendMessageToAPI = async (message: string): Promise<string> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+    
+    // Mock response based on message content
+    if (message.toLowerCase().includes('khám phá')) {
+      return 'Dưới đây là một số chủ đề lịch sử Việt Nam thú vị:\n\n1. **Các triều đại phong kiến**: Từ nhà Đinh đến nhà Nguyễn\n2. **Kháng chiến chống thực dân Pháp**: Cuộc đấu tranh giành độc lập\n3. **Chiến tranh Việt Nam**: Cuộc kháng chiến chống Mỹ\n4. **Văn hóa truyền thống**: Phong tục, tập quán Việt Nam\n\nBạn muốn tìm hiểu sâu về chủ đề nào?';
+    } else if (message.toLowerCase().includes('nhân vật')) {
+      return 'Một số nhân vật lịch sử nổi tiếng của Việt Nam:\n\n• **Hùng Vương**: Vua đầu tiên của Việt Nam\n• **Lý Thái Tổ**: Người sáng lập triều Lý\n• **Trần Hưng Đạo**: Danh tướng chống quân Mông Cổ\n• **Hồ Chí Minh**: Lãnh tụ vĩ đại của dân tộc\n\nBạn muốn biết thêm về ai?';
+    } else if (message.toLowerCase().includes('thử thách')) {
+      return 'Đây là một số câu hỏi thú vị về lịch sử Việt Nam:\n\n1. Trận Bạch Đằng năm 1288 do ai chỉ huy?\n2. Kinh đô đầu tiên của Việt Nam là gì?\n3. Cuộc khởi nghĩa Hai Bà Trưng diễn ra vào năm nào?\n\nHãy thử trả lời và tôi sẽ giải thích chi tiết!';
+    } else if (message.toLowerCase().includes('lộ trình')) {
+      return 'Lộ trình học lịch sử Việt Nam có hệ thống:\n\n**Giai đoạn 1**: Lịch sử cổ đại (Hùng Vương - Hai Bà Trưng)\n**Giai đoạn 2**: Các triều đại phong kiến (Đinh - Nguyễn)\n**Giai đoạn 3**: Thời kỳ Pháp thuộc và kháng chiến\n**Giai đoạn 4**: Lịch sử hiện đại (1945 - nay)\n\nBạn muốn bắt đầu từ giai đoạn nào?';
+    } else {
+      return `Tôi hiểu bạn quan tâm về: "${message}"\n\nĐây là một chủ đề rất thú vị trong lịch sử Việt Nam. Tôi có thể giúp bạn tìm hiểu sâu hơn về vấn đề này. Bạn có câu hỏi cụ thể nào không?`;
+    }
+  };
+
+  const sendMessage = async (message?: string) => {
+    const messageToSend = message || inputText.trim();
+    if (!messageToSend || isLoading) return;
+
+    setInputText('');
+    setLastUserMessage(messageToSend);
 
     // Add user message immediately
-    const newUserMessage: ChatMessage = {
-      id: generateId(),
-      text: userMessage,
+    const newUserMessage = {
+      id: messages.length + 1,
+      text: messageToSend,
       isBot: false,
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, newUserMessage]);
-    setLastUserMessage(userMessage);
-    mockAssistant.addMessage(newUserMessage);
-    announceToScreenReader('Đã gửi');
-    // Return focus to input for continuous typing
-    requestAnimationFrame(() => inputRef.current?.focus());
+    setMessages(prev => {
+      const newMessages = [...prev, newUserMessage];
+      setTimeout(scrollToBottom, 100);
+      return newMessages;
+    });
+
+    setIsLoading(true);
 
     try {
-      // Simulate typing indicator
-      announceToScreenReader('Trợ lý đang nhập...');
-      
-      // Get response from mock assistant
-      const response = await mockAssistant.sendMessage(userMessage);
-      // Optional extra delay in DEV when ?slow=1
-      if (shouldSlow) {
-        const extra = 500 + Math.floor(Math.random() * 500); // 500-1000ms
-        await new Promise(r => setTimeout(r, extra));
-      }
+      // Send message to API and get response
+      const botResponseText = await sendMessageToAPI(messageToSend);
       
       // Add bot response
-      const newBotMessage: ChatMessage = {
-        id: generateId(),
-        text: response.text,
+      const newBotMessage = {
+        id: messages.length + 2,
+        text: botResponseText,
         isBot: true,
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, newBotMessage]);
-      mockAssistant.addMessage(newBotMessage);
-      announceToScreenReader(`Trợ lý đã trả lời: ${response.text}`);
-      
+      setMessages(prev => {
+        const newMessages = [...prev, newBotMessage];
+        setTimeout(scrollToBottom, 100);
+        return newMessages;
+      });
     } catch (error) {
-      console.error('Error sending message:', error);
-      setHasError(true);
-      announceToScreenReader('Đã xảy ra lỗi khi gửi tin nhắn');
+      console.error('Error in chat:', error);
+      const errorMessage = {
+        id: messages.length + 2,
+        text: 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.',
+        isBot: true,
+        timestamp: new Date()
+      };
+      setMessages(prev => {
+        const newMessages = [...prev, errorMessage];
+        setTimeout(scrollToBottom, 100);
+        return newMessages;
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !(e.nativeEvent as KeyboardEvent).isComposing && !isComposing) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const handleRetry = React.useCallback(async () => {
-    if (!lastUserMessage) return;
-    
-    setHasError(false);
-    await handleSendMessage(lastUserMessage);
-    // Focus back to input after retry
-    const timeoutId = setTimeout(() => inputRef.current?.focus(), 100);
-    return () => clearTimeout(timeoutId);
-  }, [lastUserMessage]);
-
-  // When error appears, move focus to the first actionable control (Retry)
-  useEffect(() => {
-    if (hasError) {
-      requestAnimationFrame(() => retryButtonRef.current?.focus());
-    }
-  }, [hasError]);
-
-  const handleClearChat = React.useCallback(() => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa cuộc trò chuyện? Hành động này không thể hoàn tác.')) {
-      setMessages([]);
-      setLastUserMessage(null);
-      setHasError(false);
-      mockAssistant.clearHistory();
-      announceToScreenReader('Đã xóa cuộc trò chuyện');
-      // Focus back to input after clear
-      const timeoutId = setTimeout(() => inputRef.current?.focus(), 100);
-      return () => clearTimeout(timeoutId);
-    }
-  }, []);
-
-  const handleCopyMessage = React.useCallback(async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      announceToScreenReader('Đã sao chép tin nhắn vào clipboard');
-    } catch (error) {
-      console.error('Failed to copy text:', error);
-    }
-  }, []);
-
-  // Skeleton state
-  if (isInitialLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="bg-card border border-border rounded-lg shadow-sm">
-            <div className="p-6">
-              <div className="space-y-4">
-                <div className="flex gap-3">
-                  <div className={`w-8 h-8 bg-muted rounded-full ${prefersReducedMotion ? '' : 'animate-pulse'}`} />
-                  <div className="flex-1 space-y-2">
-                    <div className={`h-4 bg-muted rounded w-3/4 ${prefersReducedMotion ? '' : 'animate-pulse'}`} />
-                    <div className={`h-4 bg-muted rounded w-1/2 ${prefersReducedMotion ? '' : 'animate-pulse'}`} />
-                  </div>
-                </div>
-                <div className="flex gap-3 justify-end">
-                  <div className="flex-1 space-y-2">
-                    <div className={`h-4 bg-muted rounded w-2/3 ml-auto ${prefersReducedMotion ? '' : 'animate-pulse'}`} />
-                  </div>
-                  <div className={`w-8 h-8 bg-muted rounded-full ${prefersReducedMotion ? '' : 'animate-pulse'}`} />
-                </div>
-              </div>
-            </div>
-          </div>
+  return (
+    <div className="min-h-screen">
+      <div className="bg-red-900 text-white py-16 pt-24 flex items-center justify-center">
+        <div className="text-center px-4 w-full max-w-4xl">
+          <h1 className="text-4xl font-bold mb-4 leading-tight">Chatbot AI</h1>
+          <p className="text-xl text-red-100 leading-relaxed max-w-2xl mx-auto">
+            Trò chuyện với AI để tìm hiểu về lịch sử Việt Nam
+          </p>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Screen reader announcements */}
-      <div
-        ref={liveRegionRef}
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      />
-      
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="bg-card border border-border rounded-lg shadow-sm">
-          {/* Header */}
-          <div className="border-b border-border p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-semibold text-foreground">Trợ lý Lịch sử</h1>
-                  <p className="text-sm text-muted-foreground">Hỏi tôi bất cứ điều gì về lịch sử</p>
-                </div>
-              </div>
-              <button
-                onClick={handleClearChat}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-                aria-label="Xóa cuộc trò chuyện"
-              >
-                <Trash2 className="w-4 h-4" />
-                Xóa
-              </button>
-            </div>
-          </div>
-
-          {/* Messages Area */}
-          <div ref={messagesContainerRef} className="h-96 overflow-y-auto p-4" role="region" aria-label="Khu vực tin nhắn">
-            {messages.length === 0 ? (
-              // Empty state
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                  <Bot className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-medium text-foreground mb-2">Bắt đầu cuộc trò chuyện</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  Hỏi tôi về bất kỳ thời kỳ, sự kiện hoặc nhân vật lịch sử nào. Tôi ở đây để giúp bạn học hỏi!
-                </p>
-              </div>
-            ) : (
-              // Messages list
-              <div className="space-y-4" role="list" aria-live="off">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${message.isBot ? '' : 'flex-row-reverse'}`}
-                    role="listitem"
-                  >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      message.isBot 
-                        ? 'bg-primary/10 text-primary' 
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {message.isBot ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
-                    </div>
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.isBot 
-                        ? 'bg-muted text-foreground' 
-                        : 'bg-primary text-primary-foreground'
-                    }`}>
-                      <div className="whitespace-pre-wrap">{message.text}</div>
-                      {message.isBot && (
-                        <button
-                          onClick={() => handleCopyMessage(message.text)}
-                          className="mt-2 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                          aria-label="Sao chép tin nhắn"
-                        >
-                          <Copy className="w-3 h-3" />
-                          Sao chép
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                
-                {/* Typing indicator */}
-                {isLoading && (
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-primary/10 text-primary">
-                      <Bot className="w-4 h-4" />
-                    </div>
-                    <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-muted text-foreground" aria-label="Trợ lý đang nhập…">
-                      <div className="flex space-x-1">
-                        <div className={`w-2 h-2 bg-muted-foreground rounded-full ${prefersReducedMotion ? '' : 'animate-bounce'}`} />
-                        <div className={`w-2 h-2 bg-muted-foreground rounded-full ${prefersReducedMotion ? '' : 'animate-bounce'}`} style={{ animationDelay: prefersReducedMotion ? '' : '0.1s' }} />
-                        <div className={`w-2 h-2 bg-muted-foreground rounded-full ${prefersReducedMotion ? '' : 'animate-bounce'}`} style={{ animationDelay: prefersReducedMotion ? '' : '0.2s' }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <div ref={messagesEndRef} />
-              </div>
-            )}
-          </div>
-
-          {/* Error state */}
-          {hasError && (
-            <div className="border-t border-border p-4 bg-destructive/5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-destructive">
-                  <span className="text-sm">Gửi tin nhắn thất bại. Vui lòng thử lại.</span>
-                </div>
-                <button
-                  onClick={handleRetry}
-                  ref={retryButtonRef}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-md transition-colors"
-                  aria-label="Thử lại gửi tin nhắn"
+      <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+            <div ref={chatContainerRef} className="h-96 overflow-y-auto p-6 space-y-4">
+              {messages.map(message => (
+                <div
+                  key={message.id}
+                  className={`flex gap-3 ${message.isBot ? '' : 'flex-row-reverse'}`}
                 >
-                  <RotateCcw className="w-4 h-4" />
-                  Thử lại
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    message.isBot ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
+                  }`}>
+                    {message.isBot ? <Bot size={16} /> : <User size={16} />}
+                  </div>
+                  <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                    message.isBot 
+                      ? 'bg-gray-100 text-gray-800' 
+                      : 'bg-red-600 text-white'
+                  }`}>
+                    {message.text.split('\n\n').map((para, idx) => (
+                      <p key={idx} style={{ marginBottom: 8 }}>
+                        {para.split('\n').map((line, i) => (
+                          <React.Fragment key={i}>
+                            {line}
+                            {i !== para.split('\n').length - 1 && <br />}
+                          </React.Fragment>
+                        ))}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              
+              {isLoading && (
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100 text-red-600">
+                    <Bot size={16} />
+                  </div>
+                  <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-gray-100 text-gray-800">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} />
+            </div>
+
+            <div className="border-t p-4">
+              {/* Prompt Buttons */}
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Chọn chế độ tương tác:</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <button
+                    onClick={() => handlePromptButton('explore')}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 disabled:bg-gray-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <BookOpen size={16} />
+                    Khám Phá Chủ Đề
+                  </button>
+                  <button
+                    onClick={() => handlePromptButton('personal')}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 disabled:bg-gray-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <UserCheck size={16} />
+                    Cá Nhân
+                  </button>
+                  <button
+                    onClick={() => handlePromptButton('challenge')}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-3 py-2 bg-orange-50 hover:bg-orange-100 disabled:bg-gray-100 text-orange-700 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <Target size={16} />
+                    Thử Thách
+                  </button>
+                  <button
+                    onClick={() => handlePromptButton('roadmap')}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-3 py-2 bg-purple-50 hover:bg-purple-100 disabled:bg-gray-100 text-purple-700 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <Route size={16} />
+                    Lộ Trình
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                  placeholder="Nhập câu hỏi về lịch sử Việt Nam..."
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={() => sendMessage()}
+                  disabled={isLoading || !inputText.trim()}
+                  className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                >
+                  <Send size={16} />
+                  {isLoading ? 'Đang gửi...' : 'Gửi'}
                 </button>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Input Area */}
-          <div className="border-t border-border p-4">
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label htmlFor="chat-input" className="sr-only">
-                  Nhập tin nhắn của bạn
-                </label>
-                <textarea
-                  ref={inputRef}
-                  id="chat-input"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onCompositionStart={() => setIsComposing(true)}
-                  onCompositionEnd={() => setIsComposing(false)}
-                  placeholder="Hỏi về lịch sử... (Enter để gửi, Shift+Enter để xuống dòng)"
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                  rows={1}
-                  disabled={isLoading}
-                  style={{
-                    minHeight: '40px',
-                    maxHeight: '120px',
-                    height: 'auto'
-                  }}
-                  onInput={(e) => {
-                    const target = e.target as HTMLTextAreaElement;
-                    target.style.height = 'auto';
-                    target.style.height = target.scrollHeight + 'px';
-                  }}
-                />
-              </div>
-              <button
-                onClick={() => handleSendMessage()}
-                disabled={isLoading || !inputText.trim()}
-                className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                aria-label="Gửi tin nhắn"
-              >
-                <Send className="w-4 h-4" />
-              </button>
+          <div className="mt-8 grid md:grid-cols-3 gap-6">
+            <div className="bg-red-50 p-6 rounded-lg">
+              <h3 className="font-bold text-red-900 mb-2">Câu hỏi gợi ý</h3>
+              <ul className="space-y-2 text-sm text-red-700">
+                <li>• Chiến dịch Điện Biên Phủ diễn ra như thế nào?</li>
+                <li>• Ai là vua đầu tiên của triều Nguyễn?</li>
+                <li>• Cách mạng tháng Tám có ý nghĩa gì?</li>
+              </ul>
+            </div>
+            <div className="bg-red-50 p-6 rounded-lg">
+              <h3 className="font-bold text-red-900 mb-2">Chủ đề phổ biến</h3>
+              <ul className="space-y-2 text-sm text-red-700">
+                <li>• Các triều đại phong kiến</li>
+                <li>• Kháng chiến chống thực dân</li>
+                <li>• Văn hóa truyền thống</li>
+              </ul>
+            </div>
+            <div className="bg-red-50 p-6 rounded-lg">
+              <h3 className="font-bold text-red-900 mb-2">Tính năng AI</h3>
+              <ul className="space-y-2 text-sm text-red-700">
+                <li>• Trả lời chính xác</li>
+                <li>• Giải thích chi tiết</li>
+                <li>• Tương tác thân thiện</li>
+              </ul>
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 };
