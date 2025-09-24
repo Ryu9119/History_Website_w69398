@@ -70,8 +70,8 @@ const Profile: React.FC = () => {
           email: userData.email,
         });
       }
-    } catch (err) {
-      console.error('Error fetching profile:', err);
+    } catch (e) {
+      console.error('Error fetching profile:', e);
       setError('Không thể tải thông tin người dùng');
     } finally {
       setLoading(false);
@@ -93,7 +93,7 @@ const Profile: React.FC = () => {
         toast.success('Cập nhật thông tin thành công!');
         setIsEditing(false);
       }
-    } catch (err) {
+    } catch {
       toast.error('Cập nhật thông tin thất bại');
     } finally {
       setUpdating(false);
@@ -121,7 +121,7 @@ const Profile: React.FC = () => {
       
       toast.success('Đổi mật khẩu thành công!');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (err) {
+    } catch {
       toast.error('Đổi mật khẩu thất bại');
     } finally {
       setUpdating(false);
@@ -376,4 +376,5 @@ const Profile: React.FC = () => {
 };
 
 export default Profile;
+
 
