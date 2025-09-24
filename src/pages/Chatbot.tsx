@@ -70,7 +70,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
 
   // Scroll to bottom when message count changes
   useEffect(() => {
-    scrollToBottom();
+    const timeoutId = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timeoutId);
   }, [messages.length, scrollToBottom]);
 
   const generateId = () => {
@@ -149,14 +150,15 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
     }
   };
 
-  const handleRetry = async () => {
+  const handleRetry = React.useCallback(async () => {
     if (!lastUserMessage) return;
     
     setHasError(false);
     await handleSendMessage(lastUserMessage);
     // Focus back to input after retry
-    setTimeout(() => inputRef.current?.focus(), 100);
-  };
+    const timeoutId = setTimeout(() => inputRef.current?.focus(), 100);
+    return () => clearTimeout(timeoutId);
+  }, [lastUserMessage]);
 
   // When error appears, move focus to the first actionable control (Retry)
   useEffect(() => {
@@ -165,7 +167,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
     }
   }, [hasError]);
 
-  const handleClearChat = () => {
+  const handleClearChat = React.useCallback(() => {
     if (window.confirm('Bạn có chắc chắn muốn xóa cuộc trò chuyện? Hành động này không thể hoàn tác.')) {
       setMessages([]);
       setLastUserMessage(null);
@@ -173,18 +175,19 @@ const Chatbot: React.FC<ChatbotProps> = ({ error = false }) => {
       mockAssistant.clearHistory();
       announceToScreenReader('Đã xóa cuộc trò chuyện');
       // Focus back to input after clear
-      setTimeout(() => inputRef.current?.focus(), 100);
+      const timeoutId = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(timeoutId);
     }
-  };
+  }, []);
 
-  const handleCopyMessage = async (text: string) => {
+  const handleCopyMessage = React.useCallback(async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
       announceToScreenReader('Đã sao chép tin nhắn vào clipboard');
     } catch (error) {
       console.error('Failed to copy text:', error);
     }
-  };
+  }, []);
 
   // Skeleton state
   if (isInitialLoading) {
