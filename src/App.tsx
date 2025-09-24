@@ -7,6 +7,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PageSkeleton from "./components/PageSkeleton";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Lazy load all pages for better performance
 const Index = React.lazy(() => import("./pages/Index"));
@@ -32,6 +33,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <div className="min-h-screen bg-background text-foreground flex flex-col">
+        <ScrollToTop />
         <Header />
         <main className="flex-1">
           <Suspense fallback={<PageSkeleton className="container mx-auto px-4 py-8" />}>
@@ -41,8 +43,10 @@ const App = () => (
               <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogDetail />} />
-              <Route path="/flashcards" element={<Flashcards />} />
-              <Route path="/flashcards/:id" element={<FlashcardDetail />} />
+            <Route path="/flashcard" element={<Flashcards />} />
+            <Route path="/flashcard/:id" element={<FlashcardDetail />} />
+            <Route path="/flashcards" element={<Flashcards />} />
+            <Route path="/flashcards/:id" element={<FlashcardDetail />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />

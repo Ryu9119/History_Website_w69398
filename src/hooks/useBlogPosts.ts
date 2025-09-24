@@ -72,15 +72,27 @@ export function useBlogPosts(): UseBlogPostsState {
       filtered = filtered.filter(p => p.category === selectedCategory);
     }
 
-    // Filter by search query
+    // Filter by search query - focus on title and excerpt for better UX
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(p => 
-        p.title.toLowerCase().includes(query) ||
-        p.excerpt.toLowerCase().includes(query) ||
-        p.author.toLowerCase().includes(query) ||
-        p.category.toLowerCase().includes(query)
-      );
+      filtered = filtered.filter(p => {
+        // Search in title (highest priority)
+        if (p.title.toLowerCase().includes(query)) return true;
+        
+        // Search in excerpt (summary is usually relevant)
+        if (p.excerpt.toLowerCase().includes(query)) return true;
+        
+        // Search in author name (useful for finding posts by specific author)
+        if (p.author.toLowerCase().includes(query)) return true;
+        
+        // Search in category (useful for broad topic search)
+        if (p.category.toLowerCase().includes(query)) return true;
+        
+        // Note: Removed full content search for better UX and performance
+        // Users get more predictable and relevant results
+        
+        return false;
+      });
     }
 
     return filtered;

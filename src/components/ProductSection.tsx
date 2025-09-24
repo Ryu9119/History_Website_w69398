@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gamepad2, Package, Shirt, BookOpen } from 'lucide-react';
+import { ProductCard } from './ProductCard';
+import { Product as MockProduct } from '../lib/mock-data';
 
 interface Product {
   id: string;
@@ -83,25 +84,6 @@ const ProductSection: React.FC<ProductSectionProps> = ({ isHomePage = false }) =
     loadProducts();
   }, [isHomePage, mockProducts]);
 
-  const getProductIcon = (product: Product) => {
-    switch (product.icon) {
-      case 'gamepad':
-        return Gamepad2;
-      case 'book':
-        return BookOpen;
-      case 'shirt':
-        return Shirt;
-      default:
-        return Package;
-    }
-  };
-
-  const formatPrice = (price: string) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(parseFloat(price));
-  };
 
   if (loading) {
     return (
@@ -180,42 +162,18 @@ const ProductSection: React.FC<ProductSectionProps> = ({ isHomePage = false }) =
           <>
             <div className="grid md:grid-cols-3 gap-8 mb-8">
               {products.map((product) => {
-                const IconComponent = getProductIcon(product);
-                return (
-                  <div 
-                    key={product.id} 
-                    className="bg-card border border-border rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-                    onClick={() => navigate(`/products/${product.id}`)}
-                  >
-                    <div className="h-48 bg-muted flex items-center justify-center">
-                      {product.image ? (
-                        <img 
-                          src={product.image} 
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <IconComponent className="w-20 h-20 text-primary" />
-                      )}
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold mb-2 text-card-foreground">{product.name}</h3>
-                      <p className="text-muted-foreground mb-4">{product.description}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-primary">{formatPrice(product.price)}</span>
-                        <button 
-                          className="bg-primary text-primary-foreground px-4 py-2 rounded transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/products/${product.id}`);
-                          }}
-                        >
-                          Xem chi tiết
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
+                // Convert ProductSection Product to MockProduct format
+                const mockProduct: MockProduct = {
+                  id: parseInt(product.id),
+                  name: product.name,
+                  description: product.description,
+                  price: parseInt(product.price.replace(/\./g, '')),
+                  category: product.category,
+                  image: product.image || '/images/placeholder-product.svg',
+                  createdAt: new Date().toISOString(),
+                  rating: 4.5
+                };
+                return <ProductCard key={product.id} product={mockProduct} />;
               })}
             </div>
 
