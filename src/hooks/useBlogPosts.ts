@@ -60,7 +60,6 @@ export function useBlogPosts(): UseBlogPostsState {
     const searchParams = new URLSearchParams(location.search);
     const shouldForceEmpty = searchParams.get('empty') === '1';
     
-    
     // Return empty array if empty toggle is active
     if (shouldForceEmpty) {
       return [];

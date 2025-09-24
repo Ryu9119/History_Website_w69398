@@ -6,7 +6,7 @@ import { useProductByIdQuery } from '../hooks/useProductsQuery';
 import { cn } from '../lib/utils';
 import { mockProducts } from '../lib/mock-data';
 import { type Product } from '../lib/mock-data';
-import ProductCard from '../components/ProductCard';
+import { ProductCard } from '../components/ProductCard';
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);

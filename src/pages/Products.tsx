@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
+import { ProductCard } from '../components/ProductCard';
 import ProductSkeleton from '../components/ProductSkeleton';
 import ProductSort from '../components/ProductSort';
 import ProductFilters from '../components/ProductFilters';
@@ -43,12 +43,33 @@ const Products = () => {
     { value: 'rating', label: 'Đánh giá' },
   ];
 
-  const handleSortChange = (newSort: string) => {
+  const handleSortChange = useCallback((newSort: string) => {
     updateURLParams({ sort: newSort });
-  };
+  }, [searchParams]);
+
+  // Memoized sorted products
+  const sortedProducts = useMemo(() => {
+    if (!productsData?.data?.items) return [];
+    
+    return [...productsData.data.items].sort((a, b) => {
+      switch (sortBy) {
+        case 'price-asc':
+          return a.price - b.price;
+        case 'price-desc':
+          return b.price - a.price;
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'rating':
+          return (b.rating ?? 0) - (a.rating ?? 0);
+        case 'newest':
+        default:
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
+  }, [productsData?.data?.items, sortBy]);
 
   // Update URL params
-  const updateURLParams = (newParams: Record<string, string | number | undefined>) => {
+  const updateURLParams = useCallback((newParams: Record<string, string | number | undefined>) => {
     const params = new URLSearchParams(searchParams);
     
     Object.entries(newParams).forEach(([key, value]) => {
@@ -67,43 +88,45 @@ const Products = () => {
     setSearchParams(params);
     // Scroll to top and focus grid after filter changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       gridRef.current?.focus();
     }, 0);
-  };
+    return () => clearTimeout(timeoutId);
+  }, [searchParams, setSearchParams]);
 
   // Handle filter changes
-  const handleFiltersChange = (newFilters: Record<string, string | number | undefined>) => {
+  const handleFiltersChange = useCallback((newFilters: Record<string, string | number | undefined>) => {
     updateURLParams(newFilters);
-  };
+  }, [updateURLParams]);
 
 
   // SR-friendly grid focus ref
   const gridRef = useRef<HTMLDivElement | null>(null);
 
   // Handle page change
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = useCallback((newPage: number) => {
     updateURLParams({ page: newPage });
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
     // Focus grid for SR users after pagination
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       gridRef.current?.focus();
     }, 0);
-  };
+    return () => clearTimeout(timeoutId);
+  }, [updateURLParams]);
 
   // Handle clear filters
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setSearchParams({});
-  };
+  }, [setSearchParams]);
 
   // Error retry: clear ?error=1 then refetch
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     const params = new URLSearchParams(searchParams);
     params.delete('error');
     setSearchParams(params);
     refetch();
-  };
+  }, [searchParams, setSearchParams, refetch]);
 
   const toggleMockError = () => {
     setMockError(!mockError);
@@ -220,23 +243,7 @@ const Products = () => {
                 aria-label="Lưới sản phẩm"
                 className="grid grid-cols-1 md:grid-cols-3 gap-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                {([...productsData.data.items] as typeof productsData.data.items)
-                  .sort((a, b) => {
-                    switch (sortBy) {
-                      case 'price-asc':
-                        return a.price - b.price;
-                      case 'price-desc':
-                        return b.price - a.price;
-                      case 'name':
-                        return a.name.localeCompare(b.name);
-                      case 'rating':
-                        return (b.rating ?? 0) - (a.rating ?? 0);
-                      case 'newest':
-                      default:
-                        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                    }
-                  })
-                  .map((product) => (
+                {sortedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
