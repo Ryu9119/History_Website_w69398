@@ -1,53 +1,31 @@
 import React from 'react';
-import { cn } from '../lib/utils';
 
 interface ProductSkeletonProps {
+  count?: number;
   className?: string;
 }
 
-const ProductSkeleton: React.FC<ProductSkeletonProps> = ({ className }) => {
+const ProductSkeleton: React.FC<ProductSkeletonProps> = ({ count = 6, className = '' }) => {
   return (
-    <div 
-      className={cn(
-        "bg-card border border-border rounded-lg shadow-sm overflow-hidden animate-pulse",
-        className
-      )}
-    >
-      {/* Image Skeleton */}
-      <div className="aspect-square bg-muted" />
-
-      {/* Content Skeleton */}
-      <div className="p-4 space-y-3">
-        {/* Category and Rating Skeleton */}
-        <div className="flex items-center justify-between">
-          <div className="h-5 w-16 bg-muted rounded-full" />
-          <div className="h-4 w-12 bg-muted rounded" />
+    <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 ${className}`}>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="bg-card border border-border rounded-lg shadow-lg overflow-hidden animate-pulse">
+          <div className="h-48 bg-muted"></div>
+          <div className="p-6 space-y-4">
+            <div className="h-6 bg-muted rounded w-3/4"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-muted rounded"></div>
+              <div className="h-4 bg-muted rounded w-5/6"></div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="h-6 bg-muted rounded w-20"></div>
+              <div className="h-8 bg-muted rounded w-24"></div>
+            </div>
+          </div>
         </div>
-
-        {/* Title Skeleton */}
-        <div className="space-y-2">
-          <div className="h-4 bg-muted rounded w-3/4" />
-          <div className="h-4 bg-muted rounded w-1/2" />
-        </div>
-
-        {/* Description Skeleton */}
-        <div className="space-y-2">
-          <div className="h-3 bg-muted rounded w-full" />
-          <div className="h-3 bg-muted rounded w-4/5" />
-        </div>
-
-        {/* Price and Date Skeleton */}
-        <div className="flex items-center justify-between pt-2">
-          <div className="h-6 w-20 bg-muted rounded" />
-          <div className="h-3 w-16 bg-muted rounded" />
-        </div>
-
-        {/* Button Skeleton */}
-        <div className="h-10 bg-muted rounded-md mt-3" />
-      </div>
+      ))}
     </div>
   );
 };
 
 export default ProductSkeleton;
-
