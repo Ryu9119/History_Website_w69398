@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { FlashcardDeck } from '@/lib/mock-flashcards';
 import { Clock, BookOpen } from 'lucide-react';
@@ -19,7 +20,7 @@ interface DeckCardProps {
   deck: FlashcardDeck;
 }
 
-export const DeckCard = ({ deck }: DeckCardProps) => {
+export const DeckCard = React.memo(({ deck }: DeckCardProps) => {
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
       <div className="aspect-[4/3] overflow-hidden bg-muted">
@@ -74,6 +75,6 @@ export const DeckCard = ({ deck }: DeckCardProps) => {
       </div>
     </div>
   );
-};
+});
 
 

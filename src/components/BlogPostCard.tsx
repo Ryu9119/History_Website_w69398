@@ -9,7 +9,7 @@ interface BlogPostCardProps {
   className?: string;
 }
 
-export const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, className }) => {
+export const BlogPostCard: React.FC<BlogPostCardProps> = React.memo(({ post, className }) => {
   const { slug, title, excerpt, category, coverUrl, author, readTime, createdAt } = post;
   
   const formatDate = (dateString: string) => {
@@ -94,6 +94,6 @@ export const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, className }) =
       </div>
     </article>
   );
-};
+});
 
 
