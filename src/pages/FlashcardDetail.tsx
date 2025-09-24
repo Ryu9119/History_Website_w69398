@@ -27,7 +27,7 @@ const Skeleton = () => (
 export default function FlashcardDetail() {
   const { id } = useParams<{ id: string }>();
   const { deck, cards, isLoading, isError, retry } = useFlashcardDetail(id || '');
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const [currentIndex, setCurrentIndex] = useState(0);

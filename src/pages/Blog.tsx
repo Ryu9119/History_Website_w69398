@@ -26,17 +26,16 @@ const Blog = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const liveRegionRef = useRef<HTMLDivElement | null>(null);
 
-  // When filter changes and content is ready, move focus to grid and scroll to top for SR-friendly UX
+  // When filter changes and content is ready, move focus to grid for SR-friendly UX
   useEffect(() => {
     if (!isLoading && !isError) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      // Delay slightly to ensure DOM is painted
+      // Only focus grid after category filter changes, not search changes
       const id = window.setTimeout(() => {
         gridRef.current?.focus();
       }, 0);
       return () => window.clearTimeout(id);
     }
-  }, [selectedCategory, searchQuery, isLoading, isError]);
+  }, [selectedCategory, isLoading, isError]); // Removed searchQuery from dependencies
 
   // Update live region for screen readers
   useEffect(() => {
@@ -54,18 +53,21 @@ const Blog = () => {
   }, [isLoading, isError, posts.length, currentPage, totalPages]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto px-4 py-8">
-        {/* sr-only live region for loading announcements */}
-        <div ref={liveRegionRef} className="sr-only" aria-live="polite" aria-atomic="true" />
-        
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Blog lịch sử</h1>
-          <p className="text-muted-foreground">
-            Khám phá những câu chuyện lịch sử thú vị và những bài viết chuyên sâu
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div className="bg-red-900 text-white py-16 pt-24 flex items-center justify-center">
+        <div className="text-center px-4 w-full max-w-4xl">
+          <h1 className="text-4xl font-bold mb-4 leading-tight">Blog lịch sử</h1>
+          <p className="text-xl text-red-100 leading-relaxed max-w-2xl mx-auto">
+            Khám phá những câu chuyện lịch sử hấp dẫn được kể bởi các chuyên gia
           </p>
         </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-8">
+          {/* sr-only live region for loading announcements */}
+          <div ref={liveRegionRef} className="sr-only" aria-live="polite" aria-atomic="true" />
 
         {/* Filters */}
         <div className="mb-8">
@@ -185,7 +187,7 @@ const Blog = () => {
             )}
           </>
         )}
-      </div>
+        </div>
     </div>
   );
 };

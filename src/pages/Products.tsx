@@ -43,9 +43,8 @@ const Products = () => {
     { value: 'rating', label: 'Đánh giá' },
   ];
 
-  const handleSortChange = useCallback((newSort: string) => {
-    updateURLParams({ sort: newSort });
-  }, [searchParams]);
+  // Refs
+  const gridRef = useRef<HTMLDivElement>(null);
 
   // Memoized sorted products
   const sortedProducts = useMemo(() => {
@@ -86,29 +85,25 @@ const Products = () => {
     }
 
     setSearchParams(params);
-    // Scroll to top and focus grid after filter changes
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Focus grid after filter changes
     const timeoutId = setTimeout(() => {
       gridRef.current?.focus();
     }, 0);
     return () => clearTimeout(timeoutId);
   }, [searchParams, setSearchParams]);
 
+  const handleSortChange = useCallback((newSort: string) => {
+    updateURLParams({ sort: newSort });
+  }, [updateURLParams]);
+
   // Handle filter changes
   const handleFiltersChange = useCallback((newFilters: Record<string, string | number | undefined>) => {
     updateURLParams(newFilters);
   }, [updateURLParams]);
 
-
-  // SR-friendly grid focus ref
-  const gridRef = useRef<HTMLDivElement | null>(null);
-
   // Handle page change
   const handlePageChange = useCallback((newPage: number) => {
     updateURLParams({ page: newPage });
-    // Scroll to top when page changes
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Focus grid for SR users after pagination
     const timeoutId = setTimeout(() => {
       gridRef.current?.focus();
     }, 0);
@@ -132,138 +127,136 @@ const Products = () => {
     setMockError(!mockError);
   };
 
-  // Show error state if mock error is enabled
-  if (mockError) {
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <div className="container mx-auto px-4 py-6">
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-foreground">Sản phẩm</h1>
-            {isFeatureEnabled('ENABLE_MOCK_ERROR_TOGGLE') && (
-              <Button onClick={toggleMockError} variant="outline">
-                Tắt lỗi giả
-              </Button>
-            )}
-          </div>
-          <ErrorState 
-            onRetry={handleRetry}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-foreground">Sản phẩm</h1>
-          <div className="flex items-center space-x-3">
-            {isFeatureEnabled('ENABLE_MOCK_ERROR_TOGGLE') && (
-              <Button onClick={toggleMockError} variant="outline" size="sm">
-                Test Error
-              </Button>
-            )}
-            {isFeatureEnabled('ENABLE_MOBILE_FILTER_TOGGLE') && (
-              <Button
-                onClick={() => setShowFilters(!showFilters)}
-                variant="outline"
-                className="md:hidden"
-              >
-                {showFilters ? <X className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
-                <span className="ml-2">Bộ lọc</span>
-              </Button>
-            )}
-          </div>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div className="bg-red-900 text-white py-16 pt-24 flex items-center justify-center">
+        <div className="text-center px-4 w-full max-w-4xl">
+          <h1 className="text-4xl font-bold mb-4 leading-tight">Sản phẩm của chúng tôi</h1>
+          <p className="text-xl text-red-100 leading-relaxed max-w-2xl mx-auto">
+            Khám phá bộ sưu tập sản phẩm giáo dục độc đáo về lịch sử Việt Nam
+          </p>
+        </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Filters Sidebar */}
-          <div className={cn(
-            "lg:w-80 space-y-6",
-            isFeatureEnabled('ENABLE_MOBILE_FILTER_TOGGLE') 
-              ? (showFilters ? "block" : "hidden md:block")
-              : "block"
-          )}>
-            <ProductFilters
-              filters={{
-                category: getCategoryLabelById(categoryId) || 'Tất cả',
-                search: '',
-                priceMin: 0,
-                priceMax: 1000000,
-              }}
-              onFiltersChange={handleFiltersChange}
-              categories={categories}
-            />
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Results Count */}
-            <div className="mb-6 flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                {productsData?.data?.total || 0} sản phẩm
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-6">
+          {/* Show error state if mock error is enabled */}
+          {mockError ? (
+            <div>
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-3xl font-bold text-foreground">Sản phẩm</h2>
+                {isFeatureEnabled('ENABLE_MOCK_ERROR_TOGGLE') && (
+                  <Button onClick={toggleMockError} variant="outline">
+                    Tắt lỗi giả
+                  </Button>
+                )}
               </div>
-              <ProductSort
-                sortBy={sortBy}
-                onSortChange={handleSortChange}
-                sortOptions={sortOptions}
-                className="w-56"
-              />
+              <ErrorState onRetry={handleRetry} />
             </div>
-
-            {/* Content States */}
-            {isLoading ? (
-              // Loading State
-              <div className="text-center py-8" role="status" aria-live="polite" aria-busy="true">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-                <p className="text-muted-foreground">Đang tải sản phẩm...</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-                  {Array.from({ length: limit }).map((_, index) => (
-                    <ProductSkeleton key={index} />
-                  ))}
+          ) : (
+            <>
+              {/* Header */}
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-foreground">Danh sách sản phẩm</h2>
+                <div className="flex items-center space-x-3">
+                  {isFeatureEnabled('ENABLE_MOCK_ERROR_TOGGLE') && (
+                    <Button onClick={toggleMockError} variant="outline" size="sm">
+                      Test Error
+                    </Button>
+                  )}
+                  {isFeatureEnabled('ENABLE_MOBILE_FILTER_TOGGLE') && (
+                    <Button
+                      onClick={() => setShowFilters(!showFilters)}
+                      variant="outline"
+                      className="md:hidden"
+                    >
+                      {showFilters ? <X className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
+                      <span className="ml-2">Bộ lọc</span>
+                    </Button>
+                  )}
                 </div>
               </div>
-            ) : error ? (
-              // Error State
-              <ErrorState onRetry={() => refetch()} />
-            ) : !productsData?.data?.items.length ? (
-              // Empty State
-              <EmptyState 
-                type="no-results" 
-                onClearFilters={handleClearFilters}
-              />
-            ) : (
-              // Products Grid
-              <div
-                ref={gridRef}
-                tabIndex={-1}
-                aria-label="Lưới sản phẩm"
-                className="grid grid-cols-1 md:grid-cols-3 gap-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                {sortedProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            )}
 
-            {/* Pagination */}
-            {productsData && productsData.data.totalPages > 1 && (
-              <div className="mt-8">
-                <Pagination
-                  currentPage={productsData.data.page}
-                  totalPages={productsData.data.totalPages}
-                  totalItems={productsData.data.total}
-                  itemsPerPage={productsData.data.limit}
-                  onPageChange={handlePageChange}
-                />
+              <div className="flex flex-col lg:flex-row gap-6">
+                {/* Filters Sidebar */}
+                <div className={cn(
+                  "lg:w-64 flex-shrink-0",
+                  !showFilters && "hidden md:block"
+                )}>
+                  <ProductFilters
+                    categories={categories}
+                    filters={{
+                      category: '',
+                      priceMin: 0,
+                      priceMax: 0,
+                      search: '',
+                      categoryId: categoryId,
+                    }}
+                    onFiltersChange={handleFiltersChange}
+                  />
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1">
+                  {/* Sort Controls */}
+                  <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="text-sm text-muted-foreground">
+                      {productsData?.data?.total ? (
+                        <>Hiển thị {sortedProducts.length} trong {productsData.data.total} sản phẩm</>
+                      ) : (
+                        'Đang tải...'
+                      )}
+                    </div>
+                    <ProductSort
+                      sortOptions={sortOptions}
+                      sortBy={sortBy}
+                      onSortChange={handleSortChange}
+                    />
+                  </div>
+
+                  {/* Products Grid */}
+                  {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <ProductSkeleton key={i} />
+                      ))}
+                    </div>
+                  ) : error ? (
+                    <ErrorState onRetry={handleRetry} />
+                  ) : !productsData?.data?.items?.length ? (
+                    <EmptyState type="no-results" onClearFilters={handleClearFilters} />
+                  ) : (
+                    <div
+                      ref={gridRef}
+                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                      tabIndex={-1}
+                      role="region"
+                      aria-label="Danh sách sản phẩm"
+                    >
+                      {sortedProducts.map((product) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Pagination */}
+                  {productsData?.data?.totalPages && productsData.data.totalPages > 1 && (
+                    <div className="mt-8 flex justify-center">
+                      <Pagination
+                        currentPage={page}
+                        totalPages={productsData.data.totalPages}
+                        totalItems={productsData.data.total}
+                        itemsPerPage={limit}
+                        onPageChange={handlePageChange}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
-      </div>
     </div>
   );
 };
