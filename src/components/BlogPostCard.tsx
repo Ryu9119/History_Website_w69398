@@ -40,6 +40,8 @@ export const BlogPostCard: React.FC<BlogPostCardProps> = React.memo(({ post, cla
             alt={`Ảnh bìa: ${title}`}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
+            width={400}
+            height={192}
             onError={(e) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = '/images/placeholder-cover.svg';

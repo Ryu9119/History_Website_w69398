@@ -175,10 +175,19 @@ const BlogSection: React.FC<BlogSectionProps> = ({ isHomePage = false }) => {
                         src={post.image} 
                         alt={post.title}
                         className="w-full h-full object-cover"
+                        loading="lazy"
+                        width={400}
+                        height={192}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
                       />
                     ) : (
                       <BookOpen className="w-20 h-20 text-primary" />
                     )}
+                    <BookOpen className="w-20 h-20 text-primary hidden" />
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
