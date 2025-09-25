@@ -279,12 +279,13 @@ const chatResponse = await chatApi.post('/chat', { user_id: '123', thread_id: '4
 const chatHistory = await chatApi.get('/chat-history/123/456');
 
 // With error handling
-try {
-  const data = await api.get('/users');
-  console.log(data);
-} catch (error) {
-  if (error instanceof ApiError) {
-    console.error(`API Error ${error.status}: ${error.message}`);
-  }
-}
+// Example usage:
+// try {
+//   const data = await api.get('/users');
+//   console.log(data);
+// } catch (error) {
+//   if (error instanceof ApiError) {
+//     console.error(`API Error ${error.status}: ${error.message}`);
+//   }
+// }
 */
