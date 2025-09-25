@@ -3,24 +3,22 @@
 A comprehensive Vietnamese history education platform built with modern web technologies.
 
 ## 🎓 Internship Overview
-- **Program**: Frontend Internship (University requirement)
+- **Role**: Online Frontend Internship
 - **Duration**: 18/08 – 30/09
 - **Total Hours**: 480 hours
-- **Average Daily Working Time**: ~13 hours/day (including study, implementation, testing, documentation)
 
 ### Summary of Outcomes
 - Completed feature set across Products, Blog, Flashcards, Cart/Checkout, Auth, Admin.
 - Achieved visual/behavioral parity with the project reference while avoiding over‑engineering.
 - Implemented performance optimizations (code splitting, memoization, skeletons) and ensured accessibility.
-- Prepared production deployment via GitHub Pages and comprehensive README for onboarding.
 
 ### High-level Timeline
 - 18/08 → 24/08: Project bootstrapping, base UI, routing, data mocks
 - 25/08 → 31/08: Products (catalog, detail), Cart & Checkout flows
 - 01/09 → 07/09: Authentication (login/register/profile), protected routes
 - 08/09 → 14/09: Admin CRUD modules and role checks
-- 15/09 → 21/09: Performance work (lazy, memo, useMemo/useCallback, skeletons)
-- 22/09 → 30/09: Final parity, QA (lint/typecheck/build), deployment, documentation
+- 15/09 → 20/09: Performance work (lazy, memo, useMemo/useCallback, skeletons)
+- 21/09 → 23/09: Final parity, QA (lint/typecheck/build), deployment, documentation
 
 ## 🚀 Quickstart
 
@@ -82,16 +80,6 @@ For testing different states, add URL parameters:
 - **Accessibility**: WCAG 2.1 AA compliant
 - **Performance**: Code splitting and lazy loading
 
-## 🏗 Architecture
-```
-src/
-├── components/     # Reusable UI components
-├── pages/         # Page components
-├── hooks/         # Custom React hooks
-├── lib/           # Utilities and API adapters
-└── types/         # TypeScript type definitions
-```
-
 ## 📱 Pages & Routes
 - `/` - Homepage with sections overview
 - `/products` - Product catalog with filtering
@@ -132,6 +120,12 @@ src/
 
 ## 📞 Contact
 - **Developer**: Long Vu Hai
-
+- **University**: University of Information Technology and Management
+- **Github**: Ryu9119
 
 ## 📝 License
+This project is part of a frontend development internship. All rights reserved.
+
+---
+
+*Built with ❤️ during my frontend developer internship journey*
