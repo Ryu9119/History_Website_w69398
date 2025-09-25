@@ -2,6 +2,26 @@
 
 A comprehensive Vietnamese history education platform built with modern web technologies.
 
+## 🎓 Internship Overview
+- **Program**: Frontend Internship (University requirement)
+- **Duration**: 18/08 – 30/09
+- **Total Hours**: 480 hours
+- **Average Daily Working Time**: ~13 hours/day (including study, implementation, testing, documentation)
+
+### Summary of Outcomes
+- Completed feature set across Products, Blog, Flashcards, Cart/Checkout, Auth, Admin.
+- Achieved visual/behavioral parity with the project reference while avoiding over‑engineering.
+- Implemented performance optimizations (code splitting, memoization, skeletons) and ensured accessibility.
+- Prepared production deployment via GitHub Pages and comprehensive README for onboarding.
+
+### High-level Timeline
+- 18/08 → 24/08: Project bootstrapping, base UI, routing, data mocks
+- 25/08 → 31/08: Products (catalog, detail), Cart & Checkout flows
+- 01/09 → 07/09: Authentication (login/register/profile), protected routes
+- 08/09 → 14/09: Admin CRUD modules and role checks
+- 15/09 → 21/09: Performance work (lazy, memo, useMemo/useCallback, skeletons)
+- 22/09 → 30/09: Final parity, QA (lint/typecheck/build), deployment, documentation
+
 ## 🚀 Quickstart
 
 ### Prerequisites
@@ -24,7 +44,6 @@ npm run preview
 ```
 
 ### Environment Variables
-Create a `.env` file in the root directory:
 ```bash
 # API Configuration
 VITE_API_BASE_URL=https://api.example.com
@@ -113,12 +132,6 @@ src/
 
 ## 📞 Contact
 - **Developer**: Long Vu Hai
-- **Email**: hailongvu1@gmail.com
-- **GitHub**: Ryu9119
+
 
 ## 📝 License
-This project is part of a frontend development portfolio. All rights reserved.
-
----
-
-*Built with ❤️ using modern React ecosystem*
