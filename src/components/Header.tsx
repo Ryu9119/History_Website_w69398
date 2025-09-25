@@ -76,7 +76,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 flex items-center justify-center">
-              <img src="/logo.svg" alt="Thiên Sử Ký Logo" className="w-8 h-8 object-contain" />
+              <img src="/logo.png" alt="Thiên Sử Ký Logo" className="w-8 h-8 object-contain" />
             </div>
             <span className={cn("text-2xl font-bold text-primary-foreground/90")}>Thiên Sử Ký</span>
           </Link>

@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-10 h-10 flex items-center justify-center">
-                <img src="/logo.svg" alt="Thiên Sử Ký Logo" className="w-8 h-8 object-contain" />
+                <img src="/logo.png" alt="Thiên Sử Ký Logo" className="w-8 h-8 object-contain" />
               </div>
               <span className="text-2xl font-bold text-primary-foreground/90">Thiên Sử Ký</span>
             </div>
