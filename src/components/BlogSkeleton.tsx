@@ -33,3 +33,4 @@ const BlogSkeleton: React.FC<BlogSkeletonProps> = ({ count = 6, className = '' }
 };
 
 export default BlogSkeleton;
+

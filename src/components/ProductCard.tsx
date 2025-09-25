@@ -63,6 +63,8 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product }) 
           alt={product.name}
           className="w-full h-full object-cover"
           loading="lazy"
+          width={400}
+          height={192}
           onError={(e) => {
             e.currentTarget.onerror = null;
             e.currentTarget.style.display = 'none';

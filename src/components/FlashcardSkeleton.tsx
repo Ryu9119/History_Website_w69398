@@ -34,3 +34,4 @@ const FlashcardSkeleton: React.FC<FlashcardSkeletonProps> = ({ count = 6, classN
 };
 
 export default FlashcardSkeleton;
+

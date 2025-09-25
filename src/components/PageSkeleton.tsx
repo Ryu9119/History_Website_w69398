@@ -32,3 +32,4 @@ const PageSkeleton: React.FC<PageSkeletonProps> = ({ className = '' }) => {
 };
 
 export default PageSkeleton;
+
