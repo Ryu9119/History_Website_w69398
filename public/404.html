@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#7f1d1d" />
+    <meta name="description" content="Thiên Sử Ký - Ứng dụng học lịch sử" />
+    <link rel="icon" type="image/png" href="/History_Website_w69398/logo.png" />
+    <title>Thiên Sử Ký</title>
+    <script>
+      // Single Page App for GitHub Pages
+      // Start single page app redirect script
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+              l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location))
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/History_Website_w69398/src/main.tsx"></script>
+  </body>
+</html>
